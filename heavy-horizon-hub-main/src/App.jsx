@@ -1,0 +1,57 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Services from "./pages/Services";
+import ServiceCategory from "./pages/ServiceCategory";
+import Sales from "./pages/Sales";
+import SalesCategory from "./pages/SalesCategory";
+import UsedParts from "./pages/UsedParts";
+import Blogs from "./pages/Blogs";
+import BlogDetail from "./pages/BlogDetail";
+import Contact from "./pages/Contact";
+import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminMachines from "./pages/admin/AdminMachines";
+import AdminParts from "./pages/admin/AdminParts";
+import AdminBlogs from "./pages/admin/AdminBlogs";
+import AdminEnquiries from "./pages/admin/AdminEnquiries";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/:category" element={<ServiceCategory />} />
+          <Route path="/sales" element={<Sales />} />
+          <Route path="/sales/:category" element={<SalesCategory />} />
+          <Route path="/used-parts" element={<UsedParts />} />
+          <Route path="/blogs" element={<Blogs />} />
+          <Route path="/blogs/:id" element={<BlogDetail />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="machines" element={<AdminMachines />} />
+            <Route path="parts" element={<AdminParts />} />
+            <Route path="blogs" element={<AdminBlogs />} />
+            <Route path="enquiries" element={<AdminEnquiries />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
