@@ -1,40 +1,10 @@
 import { useState } from 'react';
+import { normalizeImages } from '@/lib/images';
 
 export function MachineCard({ machine, onEnquiry, showStatus = false }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Robust image extraction logic (Normalized to array of URLs)
-  const getSafeImages = () => {
-    try {
-      if (!machine) return [];
-
-      // 1. Check for images array
-      if (machine.images && Array.isArray(machine.images)) {
-        return machine.images
-          .map(img => {
-            if (typeof img === 'object' && img !== null) {
-              return img.url || img.secure_url || null;
-            }
-            return typeof img === 'string' ? img : null;
-          })
-          .filter(url => typeof url === 'string' && url.length > 0);
-      }
-
-      // 2. Check for single image field (Backward compatibility)
-      if (machine.image) {
-        const img = machine.image;
-        const url = (typeof img === 'object' && img !== null) ? (img.url || img.secure_url) : img;
-        if (typeof url === 'string' && url.length > 0) {
-          return [url];
-        }
-      }
-    } catch (error) {
-      console.error("Error processing machine images:", error, machine);
-    }
-    return [];
-  };
-
-  const normalizedImages = getSafeImages();
+  const normalizedImages = normalizeImages(machine?.images || machine?.image);
   const hasImages = normalizedImages.length > 0;
   const fallbackUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800";
 

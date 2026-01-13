@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { getMachines, addMachine, deleteMachine, uploadImages } from '@/lib/api';
+import { normalizeImages, getFirstImageUrl } from '@/lib/images';
 
 const emptyMachine = {
   title: '',
@@ -273,9 +274,16 @@ export default function AdminMachines() {
               </div>
               {previews.length > 0 && (
                 <div className="image-preview-grid">
-                  {previews.map((url, index) => (
+                  {normalizeImages(previews).map((url, index) => (
                     <div key={index} className="image-preview">
-                      <img src={url} alt={`Preview ${index + 1}`} />
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        onError={(e) => {
+                          console.error("Preview image failed to load:", url);
+                          e.target.src = 'https://via.placeholder.com/150?text=Error';
+                        }}
+                      />
                       <button type="button" onClick={() => removeImage(index)}>×</button>
                     </div>
                   ))}
@@ -315,15 +323,9 @@ export default function AdminMachines() {
             </thead>
             <tbody>
               {(machines || []).map((machine, index) => {
-                const getSafeUrl = (img) => {
-                  if (typeof img === 'object' && img !== null) {
-                    return img.url || img.secure_url || null;
-                  }
-                  return typeof img === 'string' ? img : null;
-                };
-
-                const firstImage = machine.images && machine.images[0];
-                const imageUrl = getSafeUrl(firstImage) || 'https://via.placeholder.com/60x40?text=No+Image';
+                // Try to get first image from array, then from single field, then fallback
+                const imageUrl = getFirstImageUrl(machine.images, null) ||
+                  getFirstImageUrl(machine.image, 'https://via.placeholder.com/60x40?text=No+Image');
 
                 return (
                   <tr key={machine._id || index}>
