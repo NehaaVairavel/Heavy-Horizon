@@ -3,32 +3,72 @@ import { useState } from 'react';
 export function MachineCard({ machine, onEnquiry, showStatus = false }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Robust image extraction logic (Normalized to array of URLs)
+  const getSafeImages = () => {
+    try {
+      if (!machine) return [];
+
+      // 1. Check for images array
+      if (machine.images && Array.isArray(machine.images)) {
+        return machine.images
+          .map(img => {
+            if (typeof img === 'object' && img !== null) {
+              return img.url || img.secure_url || null;
+            }
+            return typeof img === 'string' ? img : null;
+          })
+          .filter(url => typeof url === 'string' && url.length > 0);
+      }
+
+      // 2. Check for single image field (Backward compatibility)
+      if (machine.image) {
+        const img = machine.image;
+        const url = (typeof img === 'object' && img !== null) ? (img.url || img.secure_url) : img;
+        if (typeof url === 'string' && url.length > 0) {
+          return [url];
+        }
+      }
+    } catch (error) {
+      console.error("Error processing machine images:", error, machine);
+    }
+    return [];
+  };
+
+  const normalizedImages = getSafeImages();
+  const hasImages = normalizedImages.length > 0;
+  const fallbackUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800";
+
   const nextImage = (e) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) =>
-      prev === machine.images.length - 1 ? 0 : prev + 1
+      prev === normalizedImages.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = (e) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) =>
-      prev === 0 ? machine.images.length - 1 : prev - 1
+      prev === 0 ? normalizedImages.length - 1 : prev - 1
     );
   };
 
   return (
     <div className="card">
       <div className="card-image">
-        {machine.images.length > 0 ? (
+        {hasImages ? (
           <div className="image-slider">
             <img
-              src={machine.images[currentImageIndex]?.secure_url || machine.images[currentImageIndex] || ''}
-              alt={`${machine.title} - Image ${currentImageIndex + 1}`}
+              src={normalizedImages[currentImageIndex]}
+              alt={`${machine.title || 'Machine'} - Image ${currentImageIndex + 1}`}
               loading="lazy"
+              style={{ objectFit: 'cover' }}
+              onError={(e) => {
+                console.warn(`Failed to load image: ${normalizedImages[currentImageIndex]}`);
+                e.target.src = fallbackUrl;
+              }}
             />
 
-            {machine.images.length > 1 && (
+            {normalizedImages.length > 1 && (
               <>
                 <button className="slider-nav prev" onClick={prevImage} aria-label="Previous image">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
@@ -42,7 +82,7 @@ export function MachineCard({ machine, onEnquiry, showStatus = false }) {
                 </button>
 
                 <div className="slider-dots">
-                  {machine.images.map((_, index) => (
+                  {normalizedImages.map((_, index) => (
                     <button
                       key={index}
                       className={`slider-dot ${index === currentImageIndex ? 'active' : ''}`}
@@ -58,8 +98,13 @@ export function MachineCard({ machine, onEnquiry, showStatus = false }) {
             )}
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted-foreground)' }}>
-            No image available
+          <div className="image-slider">
+            <img
+              src={fallbackUrl}
+              alt="No image available"
+              loading="lazy"
+              style={{ objectFit: 'cover' }}
+            />
           </div>
         )}
 

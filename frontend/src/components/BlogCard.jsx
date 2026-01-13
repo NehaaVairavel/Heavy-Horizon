@@ -36,15 +36,27 @@ export function BlogCard({ blog }) {
         }
     };
 
-    // Ensure images array exists
-    const images = blog.images && Array.isArray(blog.images) && blog.images.length > 0
-        ? blog.images
-        : (blog.featured_image ? [blog.featured_image] : []);
+    // Safe URL extractor helper
+    const getSafeUrl = (img) => {
+        if (typeof img === 'object' && img !== null) {
+            return img.url || img.secure_url || null;
+        }
+        return typeof img === 'string' ? img : null;
+    };
+
+    // Ensure images array exists and contains valid URLs
+    const images = (blog.images && Array.isArray(blog.images) && blog.images.length > 0
+        ? blog.images.map(getSafeUrl)
+        : (blog.featured_image ? [getSafeUrl(blog.featured_image)] : []))
+        .filter(url => url && typeof url === 'string' && url.startsWith('http'));
+
+    const fallbackUrl = "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&q=80&w=800";
+    const hasImages = images.length > 0;
 
     const nextImage = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (images.length === 0) return;
+        if (!hasImages) return;
         setCurrentImageIndex((prev) =>
             prev === images.length - 1 ? 0 : prev + 1
         );
@@ -53,7 +65,7 @@ export function BlogCard({ blog }) {
     const prevImage = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (images.length === 0) return;
+        if (!hasImages) return;
         setCurrentImageIndex((prev) =>
             prev === 0 ? images.length - 1 : prev - 1
         );
@@ -64,54 +76,44 @@ export function BlogCard({ blog }) {
     return (
         <div className="card">
             <div className="card-image">
-                {images.length > 0 ? (
-                    <div className="image-slider">
-                        <img
-                            src={images[currentImageIndex]?.secure_url || images[currentImageIndex] || ''}
-                            alt={`${blog.title || 'Blog'} - Image ${currentImageIndex + 1}`}
-                            loading="lazy"
-                        />
+                <div className="image-slider">
+                    <img
+                        src={hasImages ? images[currentImageIndex] : fallbackUrl}
+                        alt={`${blog.title || 'Blog'} - Image ${currentImageIndex + 1}`}
+                        loading="lazy"
+                        onError={(e) => { e.target.src = fallbackUrl; }}
+                    />
 
-                        {images.length > 1 && (
-                            <>
-                                <button className="slider-nav prev" onClick={prevImage} aria-label="Previous image">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                                    </svg>
-                                </button>
-                                <button className="slider-nav next" onClick={nextImage} aria-label="Next image">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                    </svg>
-                                </button>
+                    {images.length > 1 && (
+                        <>
+                            <button className="slider-nav prev" onClick={prevImage} aria-label="Previous image">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                                </svg>
+                            </button>
+                            <button className="slider-nav next" onClick={nextImage} aria-label="Next image">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                </svg>
+                            </button>
 
-                                <div className="slider-dots">
-                                    {images.map((_, index) => (
-                                        <button
-                                            key={index}
-                                            className={`slider-dot ${index === currentImageIndex ? 'active' : ''}`}
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                setCurrentImageIndex(index);
-                                            }}
-                                            aria-label={`Go to image ${index + 1}`}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted-foreground)', backgroundColor: 'var(--muted)', gap: '8px' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                            <circle cx="9" cy="9" r="2" />
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                        </svg>
-                        <span style={{ fontSize: '0.8rem' }}>No image available</span>
-                    </div>
-                )}
+                            <div className="slider-dots">
+                                {images.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        className={`slider-dot ${index === currentImageIndex ? 'active' : ''}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setCurrentImageIndex(index);
+                                        }}
+                                        aria-label={`Go to image ${index + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
             <div className="card-body">

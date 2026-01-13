@@ -315,8 +315,15 @@ export default function AdminMachines() {
             </thead>
             <tbody>
               {(machines || []).map((machine, index) => {
+                const getSafeUrl = (img) => {
+                  if (typeof img === 'object' && img !== null) {
+                    return img.url || img.secure_url || null;
+                  }
+                  return typeof img === 'string' ? img : null;
+                };
+
                 const firstImage = machine.images && machine.images[0];
-                const imageUrl = firstImage?.secure_url || firstImage || 'https://via.placeholder.com/60x40';
+                const imageUrl = getSafeUrl(firstImage) || 'https://via.placeholder.com/60x40?text=No+Image';
 
                 return (
                   <tr key={machine._id || index}>

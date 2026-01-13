@@ -108,9 +108,21 @@ export default function BlogDetail() {
     );
   }
 
-  const images = blog.images && Array.isArray(blog.images) && blog.images.length > 0
-    ? blog.images
-    : (blog.featured_image ? [blog.featured_image] : []);
+  // Safe URL extractor helper
+  const getSafeUrl = (img) => {
+    if (typeof img === 'object' && img !== null) {
+      return img.url || img.secure_url || null;
+    }
+    return typeof img === 'string' ? img : null;
+  };
+
+  const images = (blog.images && Array.isArray(blog.images) && blog.images.length > 0
+    ? blog.images.map(getSafeUrl)
+    : (blog.featured_image ? [getSafeUrl(blog.featured_image)] : []))
+    .filter(url => url && typeof url === 'string' && url.startsWith('http'));
+
+  const fallbackUrl = "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&q=80&w=800";
+  const hasImages = images.length > 0;
 
   return (
     <Layout>
@@ -147,59 +159,49 @@ export default function BlogDetail() {
             position: 'relative',
             border: 'none'
           }}>
-            {images.length > 0 ? (
-              <div className="image-slider">
-                <img
-                  src={images[currentImageIndex]?.secure_url || images[currentImageIndex] || ''}
-                  alt={`${blog.title || 'Blog'} - Image ${currentImageIndex + 1}`}
-                  loading="lazy"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                />
+            <div className="image-slider">
+              <img
+                src={hasImages ? images[currentImageIndex] : fallbackUrl}
+                alt={`${blog.title || 'Blog'} - Image ${currentImageIndex + 1}`}
+                loading="lazy"
+                onError={(e) => { e.target.src = fallbackUrl; }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
 
-                {images.length > 1 && (
-                  <>
-                    <button className="slider-nav prev" onClick={prevImage} aria-label="Previous image">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                      </svg>
-                    </button>
-                    <button className="slider-nav next" onClick={nextImage} aria-label="Next image">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                      </svg>
-                    </button>
+              {images.length > 1 && (
+                <>
+                  <button className="slider-nav prev" onClick={prevImage} aria-label="Previous image">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                  </button>
+                  <button className="slider-nav next" onClick={nextImage} aria-label="Next image">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </button>
 
-                    <div className="slider-dots">
-                      {images.map((_, index) => (
-                        <button
-                          key={index}
-                          className={`slider-dot ${index === currentImageIndex ? 'active' : ''}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setCurrentImageIndex(index);
-                          }}
-                          aria-label={`Go to image ${index + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted-foreground)', backgroundColor: 'var(--muted)', gap: '12px' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                  <circle cx="9" cy="9" r="2" />
-                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                </svg>
-                <span>No image available</span>
-              </div>
-            )}
+                  <div className="slider-dots">
+                    {images.map((_, index) => (
+                      <button
+                        key={index}
+                        className={`slider-dot ${index === currentImageIndex ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCurrentImageIndex(index);
+                        }}
+                        aria-label={`Go to image ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -259,18 +261,23 @@ export default function BlogDetail() {
             />
 
             {/* Image Gallery */}
-            {blog.images && blog.images.length > 1 && (
+            {images && images.length > 1 && (
               <div style={{ marginTop: '40px', marginBottom: '40px', paddingTop: '40px', borderTop: '1px solid var(--border)' }}>
                 <h3 style={{ fontSize: '1.5rem', marginBottom: '24px', fontFamily: 'var(--font-heading)' }}>Image Gallery</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                  {blog.images.slice(1).map((img, index) => (
+                  {images.slice(1).map((imgUrl, index) => (
                     <div key={index} style={{
                       aspectRatio: '16/10',
                       overflow: 'hidden',
                       borderRadius: '12px',
                       boxShadow: 'var(--shadow-sm)'
                     }}>
-                      <img src={img.secure_url || img} alt={`Gallery ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img
+                        src={imgUrl}
+                        alt={`Gallery ${index}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.target.src = fallbackUrl; }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -306,13 +313,17 @@ export default function BlogDetail() {
               </div>
               <div className="grid-2">
                 {relatedBlogs.map((relatedBlog) => {
-                  const rImg = relatedBlog.featured_image || (relatedBlog.images && relatedBlog.images[0]);
-                  const rImgUrl = rImg?.secure_url || rImg;
+                  const rImg = (relatedBlog.images && relatedBlog.images.length > 0) ? relatedBlog.images[0] : relatedBlog.featured_image;
+                  const rImgUrl = getSafeUrl(rImg) || fallbackUrl;
 
                   return (
                     <Link key={relatedBlog._id} to={`/blogs/${relatedBlog._id}`} className="card" style={{ textDecoration: 'none' }}>
                       <div className="card-image" style={{ height: '200px' }}>
-                        <img src={rImgUrl} alt={relatedBlog.title} />
+                        <img
+                          src={rImgUrl}
+                          alt={relatedBlog.title}
+                          onError={(e) => { e.target.src = fallbackUrl; }}
+                        />
                       </div>
                       <div className="card-body">
                         <span style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600, display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>

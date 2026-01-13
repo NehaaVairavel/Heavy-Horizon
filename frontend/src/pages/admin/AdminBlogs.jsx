@@ -132,12 +132,15 @@ export default function AdminBlogs() {
               </div>
               {formData.images.length > 0 && (
                 <div className="image-preview-grid">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="image-preview">
-                      <img src={img.secure_url || img} alt={`Preview ${index + 1}`} />
-                      <button type="button" onClick={() => removeImage(index)}>×</button>
-                    </div>
-                  ))}
+                  {formData.images.map((img, index) => {
+                    const url = typeof img === 'object' ? (img.url || img.secure_url) : img;
+                    return (
+                      <div key={index} className="image-preview">
+                        <img src={url} alt={`Preview ${index + 1}`} />
+                        <button type="button" onClick={() => removeImage(index)}>×</button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

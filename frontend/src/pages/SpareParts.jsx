@@ -54,13 +54,29 @@ export default function SpareParts() {
               {parts.map((part) => (
                 <div key={part._id} className="card">
                   <div className="card-image">
-                    {part.images && part.images.length > 0 ? (
-                      <img src={part.images[0]?.secure_url || part.images[0]} alt={part.name} loading="lazy" />
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted-foreground)' }}>
-                        No image
-                      </div>
-                    )}
+                    {(() => {
+                      const getSafeUrl = (img) => {
+                        if (typeof img === 'object' && img !== null) {
+                          return img.url || img.secure_url || null;
+                        }
+                        return typeof img === 'string' ? img : null;
+                      };
+
+                      const imageUrl = part.images?.length
+                        ? (getSafeUrl(part.images[0]) || null)
+                        : (getSafeUrl(part.image) || null);
+
+                      const fallbackUrl = "https://images.unsplash.com/photo-1572949645841-094f3a9c4c94?auto=format&fit=crop&q=80&w=800";
+
+                      return (
+                        <img
+                          src={imageUrl || fallbackUrl}
+                          alt={part.name}
+                          loading="lazy"
+                          onError={(e) => { e.target.src = fallbackUrl; }}
+                        />
+                      );
+                    })()}
                     <span className="card-badge">Used Part</span>
                   </div>
                   <div className="card-body">

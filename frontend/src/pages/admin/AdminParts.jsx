@@ -124,18 +124,21 @@ export default function AdminParts() {
               <input type="file" onChange={handleImageUpload} disabled={uploading} multiple />
               {uploading && <span>Uploading...</span>}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px' }}>
-                {formData.images && formData.images.map((img, index) => (
-                  <div key={index} className="image-preview" style={{ position: 'relative', display: 'inline-block' }}>
-                    <img src={img.secure_url || img} alt={`Preview ${index + 1}`} style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }))}
-                      style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--error)', color: 'white', borderRadius: '50%', border: 'none', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                {formData.images && formData.images.map((img, index) => {
+                  const url = typeof img === 'object' ? (img.url || img.secure_url) : img;
+                  return (
+                    <div key={index} className="image-preview" style={{ position: 'relative', display: 'inline-block' }}>
+                      <img src={url} alt={`Preview ${index + 1}`} style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }))}
+                        style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'var(--error)', color: 'white', borderRadius: '50%', border: 'none', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div className="form-actions">
@@ -165,7 +168,7 @@ export default function AdminParts() {
             <tbody>
               {parts.map(part => {
                 const firstImage = part.images && part.images[0];
-                const imageUrl = firstImage?.secure_url || firstImage || 'https://via.placeholder.com/40';
+                const imageUrl = (typeof firstImage === 'object' ? (firstImage.url || firstImage.secure_url) : firstImage) || 'https://via.placeholder.com/40x30?text=No+Img';
 
                 return (
                   <tr key={part._id}>
