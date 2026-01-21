@@ -51,6 +51,7 @@ export const uploadImages = async (files) => {
   const response = await api.post('/admin/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+  console.log("DEBUG: uploadImages API raw response:", response.data);
   return { images: response.data };
 };
 

@@ -60,11 +60,16 @@ export default function AdminMachines() {
     }
 
     // Generate previews
-    const newPreviews = files.map(file => URL.createObjectURL(file));
+    const newPreviews = files.map(file => {
+      const url = URL.createObjectURL(file);
+      console.log(`DEBUG: Created preview URL for ${file.name}: ${url}`);
+      return url;
+    });
 
     // Update state
     setSelectedFiles(prev => [...prev, ...files]);
     setPreviewUrls(prev => [...prev, ...newPreviews]);
+    console.log("DEBUG: Current previewUrls:", [...previewUrls, ...newPreviews]);
 
     // Clear error if any
     setMessage({ type: '', text: '' });
@@ -91,10 +96,12 @@ export default function AdminMachines() {
       // 1. Upload new files if any
       if (selectedFiles.length > 0) {
         setUploading(true);
-        // Ensure strictly passing separate files array
-        const uploadResult = await uploadImages(selectedFiles);
-        if (uploadResult && uploadResult.images) {
-          uploadedImages = uploadResult.images;
+        const uploadedUrls = await uploadImages(selectedFiles);
+        if (Array.isArray(uploadedUrls)) {
+          uploadedImages = uploadedUrls;
+        } else if (uploadedUrls && uploadedUrls.images) {
+          // Fallback for different API response structure if any
+          uploadedImages = uploadedUrls.images;
         }
         setUploading(false);
       }
@@ -104,11 +111,12 @@ export default function AdminMachines() {
       // But if we did (edit mode), we would merge them here.
       const payload = {
         ...formData,
-        images: uploadedImages, // Use normalized array from backend
+        images: uploadedImages, // Array of string URLs
         year: Number(formData.year) || 0,
         hours: Number(formData.hours) || 0,
       };
 
+      console.log("DEBUG: Posting machine payload:", payload);
       await addMachine(payload);
 
       setMessage({ type: 'success', text: 'Machine added successfully' });
@@ -150,9 +158,11 @@ export default function AdminMachines() {
   };
 
   // Helper to get a stable thumbnail for table
+  // Robustly normalize images from any legacy format
   const getThumbnail = (machine) => {
-    const images = normalizeImages(machine.images || machine.image);
-    return images.length > 0 ? images[0] : 'https://via.placeholder.com/60x40?text=No+Image';
+    const normalizedImages = normalizeImages(machine?.images || machine?.image);
+    console.log(`DEBUG: AdminMachines [${machine?.title}] normalizedImages:`, normalizedImages);
+    return normalizedImages.length > 0 ? normalizedImages[0] : 'https://via.placeholder.com/60x40?text=No+Image';
   };
 
   return (

@@ -85,36 +85,35 @@ def admin_login():
 @token_required
 def upload_images():
     files = request.files.getlist("images")
-    image_data = []
+    urls = []
     for file in files:
         res = cloudinary.uploader.upload(file, folder="heavy_horizon")
-        image_data.append({
-            "secure_url": res["secure_url"],
-            "public_id": res["public_id"]
-        })
-    return jsonify(image_data)
+        # Return only the URL as requested
+        urls.append(res["secure_url"])
+    return jsonify(urls)
 
 # Helper for Cloudinary Cleanup
 def delete_cloudinary_images(image_list):
     """
-    Deletes images from Cloudinary based on an array of image objects or strings.
-    Handles legacy string URLs (skips them) and new object format {secure_url, public_id}.
+    Deletes images from Cloudinary based on an array of image URLs.
+    Extracts public_id from URL if possible.
     """
     if not image_list or not isinstance(image_list, list):
         return
 
-    for img in image_list:
-        if isinstance(img, dict) and img.get("public_id"):
+    for img_url in image_list:
+        if isinstance(img_url, str) and "cloudinary.com" in img_url:
             try:
-                cloudinary.uploader.destroy(img["public_id"])
-                print(f"DEBUG: Deleted Cloudinary image {img['public_id']}")
+                # Extract public_id: https://res.cloudinary.com/cloud_name/image/upload/v12345/folder/public_id.jpg
+                # This is a simplified extraction
+                parts = img_url.split('/')
+                filename = parts[-1].split('.')[0]
+                # Assuming images are in 'heavy_horizon' folder
+                public_id = f"heavy_horizon/{filename}"
+                cloudinary.uploader.destroy(public_id)
+                print(f"DEBUG: Deleted Cloudinary image {public_id}")
             except Exception as e:
-                print(f"ERROR: Failed to delete Cloudinary image {img['public_id']}: {e}")
-        elif isinstance(img, str) and "cloudinary.com" in img:
-            # Legacy support: we can't easily get the public_id from a raw URL reliably 
-            # without complex regex, so we log it and move on. 
-            # Most modern Cloudinary URLs include the public_id, but it's safer to skip.
-            print(f"DEBUG: Skipping legacy image URL deletion: {img}")
+                print(f"ERROR: Failed to delete Cloudinary image from URL {img_url}: {e}")
 
 # ---------------- MACHINES ----------------
 @app.route("/api/machines", methods=["GET"])

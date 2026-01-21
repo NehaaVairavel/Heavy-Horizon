@@ -6,6 +6,9 @@ export function MachineCard({ machine, onEnquiry, showStatus = false }) {
 
   // Robustly normalize images from any legacy format
   const normalizedImages = normalizeImages(machine?.images || machine?.image);
+  if (normalizedImages.length > 0) {
+    console.log(`DEBUG: MachineCard [${machine?.title}] rendering with ${normalizedImages.length} images:`, normalizedImages);
+  }
   const hasImages = normalizedImages.length > 0;
   // Use a clean placeholder if no images
   const fallbackUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800";

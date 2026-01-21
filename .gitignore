@@ -1,2 +1,4 @@
 # Backend environment variables
 backend/.env
+backend/fix_db_images.py
+backend/inspect_db.py
