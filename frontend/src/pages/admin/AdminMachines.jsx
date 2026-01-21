@@ -188,7 +188,7 @@ export default function AdminMachines() {
           <form onSubmit={handleSubmit} className="admin-form">
             <div className="form-row">
               <div className="admin-form-group">
-                <label>Machine Title *</label>
+                <label>Machine Brand *</label>
                 <input
                   type="text"
                   value={formData.title}
@@ -329,7 +329,7 @@ export default function AdminMachines() {
             <thead>
               <tr>
                 <th>Image</th>
-                <th>Title</th>
+                <th>Brand</th>
                 <th>Category</th>
                 <th>Purpose (Type)</th>
                 <th>Year</th>
