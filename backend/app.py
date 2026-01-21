@@ -244,11 +244,19 @@ def get_enquiries():
 @token_required
 def get_dashboard_counts():
     try:
+        # Get counts (defaults to 0 if None, though count_documents returns int)
+        m_count = machines.count_documents({})
+        p_count = parts.count_documents({})
+        b_count = blogs.count_documents({})
+        e_count = enquiries.count_documents({})
+        
+        print(f"DEBUG: Dashboard Counts - Machines: {m_count}, Parts: {p_count}, Blogs: {b_count}, Enquiries: {e_count}")
+        
         return jsonify({
-            "machines": machines.count_documents({}),
-            "parts": parts.count_documents({}),
-            "blogs": blogs.count_documents({}),
-            "enquiries": enquiries.count_documents({})
+            "machines": m_count,
+            "parts": p_count,
+            "blogs": b_count,
+            "enquiries": e_count
         })
     except Exception as e:
         print(f"Error fetching dashboard counts: {e}")

@@ -4,12 +4,15 @@ import { normalizeImages } from '@/lib/images';
 export function MachineCard({ machine, onEnquiry, showStatus = false }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Robustly normalize images from any legacy format
   const normalizedImages = normalizeImages(machine?.images || machine?.image);
   const hasImages = normalizedImages.length > 0;
+  // Use a clean placeholder if no images
   const fallbackUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800";
 
   const nextImage = (e) => {
     e.stopPropagation();
+    if (!hasImages) return;
     setCurrentImageIndex((prev) =>
       prev === normalizedImages.length - 1 ? 0 : prev + 1
     );
@@ -17,6 +20,7 @@ export function MachineCard({ machine, onEnquiry, showStatus = false }) {
 
   const prevImage = (e) => {
     e.stopPropagation();
+    if (!hasImages) return;
     setCurrentImageIndex((prev) =>
       prev === 0 ? normalizedImages.length - 1 : prev - 1
     );
@@ -68,7 +72,7 @@ export function MachineCard({ machine, onEnquiry, showStatus = false }) {
             )}
           </div>
         ) : (
-          <div className="image-slider">
+          <div className="image-placeholder">
             <img
               src={fallbackUrl}
               alt="No image available"
@@ -96,7 +100,7 @@ export function MachineCard({ machine, onEnquiry, showStatus = false }) {
           </div>
           <div className="spec-item">
             <label>Hours</label>
-            <span>{machine.hours.toLocaleString()}</span>
+            <span>{machine.hours?.toLocaleString() || '0'}</span>
           </div>
           <div className="spec-item">
             <label>Condition</label>

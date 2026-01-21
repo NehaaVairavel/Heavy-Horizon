@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { getMachines, addMachine, deleteMachine, uploadImages } from '@/lib/api';
-import { normalizeImages, getFirstImageUrl } from '@/lib/images';
+import { normalizeImages } from '@/lib/images';
 
 const emptyMachine = {
   title: '',
@@ -19,16 +19,19 @@ export default function AdminMachines() {
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(emptyMachine);
+
+  // Image States
+  const [selectedFiles, setSelectedFiles] = useState([]); // File[]
+  const [previewUrls, setPreviewUrls] = useState([]);     // string[] (blob URLs)
+
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [previewUrls, setPreviewUrls] = useState([]);
 
   useEffect(() => {
     fetchMachines();
     return () => {
-      // Cleanup preview URLs on unmount
+      // Cleanup preview URLs on unmount to prevent memory leaks
       previewUrls.forEach(url => URL.revokeObjectURL(url));
     };
   }, []);
@@ -50,17 +53,31 @@ export default function AdminMachines() {
 
     const files = Array.from(e.target.files);
 
-    // Check if total images (existing + new) exceed 10
+    // Validate limit (Max 10 images)
     if (previewUrls.length + files.length > 10) {
       setMessage({ type: 'error', text: 'Maximum 10 images allowed' });
       return;
     }
 
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+    // Generate previews
+    const newPreviews = files.map(file => URL.createObjectURL(file));
 
-    setSelectedImages(prev => [...prev, ...files]);
-    setPreviewUrls(prev => [...prev, ...newPreviewUrls]);
-    setMessage({ type: 'success', text: 'Images selected successfully' });
+    // Update state
+    setSelectedFiles(prev => [...prev, ...files]);
+    setPreviewUrls(prev => [...prev, ...newPreviews]);
+
+    // Clear error if any
+    setMessage({ type: '', text: '' });
+  };
+
+  const removeImage = (index) => {
+    // Revoke object URL
+    const urlToRemove = previewUrls[index];
+    if (urlToRemove) URL.revokeObjectURL(urlToRemove);
+
+    // Remove from both arrays
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -69,20 +86,25 @@ export default function AdminMachines() {
     setMessage({ type: '', text: '' });
 
     try {
-      let finalImages = [];
+      let uploadedImages = [];
 
-      // 1. Upload files to Cloudinary if there are any selected
-      if (selectedImages.length > 0) {
+      // 1. Upload new files if any
+      if (selectedFiles.length > 0) {
         setUploading(true);
-        const uploadResult = await uploadImages(selectedImages);
-        finalImages = uploadResult.images;
+        // Ensure strictly passing separate files array
+        const uploadResult = await uploadImages(selectedFiles);
+        if (uploadResult && uploadResult.images) {
+          uploadedImages = uploadResult.images;
+        }
         setUploading(false);
       }
 
       // 2. Prepare payload
+      // Note: In "Add Machine", we usually don't have existing images in formData.images
+      // But if we did (edit mode), we would merge them here.
       const payload = {
         ...formData,
-        images: finalImages,
+        images: uploadedImages, // Use normalized array from backend
         year: Number(formData.year) || 0,
         hours: Number(formData.hours) || 0,
       };
@@ -90,30 +112,33 @@ export default function AdminMachines() {
       await addMachine(payload);
 
       setMessage({ type: 'success', text: 'Machine added successfully' });
-
-      // Reset everything
-      setFormData(emptyMachine);
-      setSelectedImages([]);
-      previewUrls.forEach(url => URL.revokeObjectURL(url));
-      setPreviewUrls([]);
-      setShowForm(false);
-
-      // Refresh the list immediately
+      handleReset();
       await fetchMachines();
+
     } catch (error) {
       console.error("Error adding machine:", error);
       setMessage({
         type: 'error',
         text: error.response?.data?.error || error.message || "Failed to add machine"
       });
+      setUploading(false);
     } finally {
       setSaving(false);
-      setUploading(false);
     }
   };
 
+  const handleReset = () => {
+    // Cleanup previews
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+
+    setFormData(emptyMachine);
+    setSelectedFiles([]);
+    setPreviewUrls([]);
+    setShowForm(false);
+  };
+
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this machine?')) return;
+    if (!window.confirm('Are you sure you want to delete this machine?')) return;
 
     try {
       await deleteMachine(id);
@@ -124,17 +149,10 @@ export default function AdminMachines() {
     }
   };
 
-  const removeImage = (index) => {
-    // Revoke the URL for the removed preview
-    URL.revokeObjectURL(previewUrls[index]);
-
-    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
-    setSelectedImages(prev => prev.filter((_, i) => i !== index));
-
-    setFormData(prev => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index)
-    }));
+  // Helper to get a stable thumbnail for table
+  const getThumbnail = (machine) => {
+    const images = normalizeImages(machine.images || machine.image);
+    return images.length > 0 ? images[0] : 'https://via.placeholder.com/60x40?text=No+Image';
   };
 
   return (
@@ -265,28 +283,27 @@ export default function AdminMachines() {
                 />
                 {uploading && <span className="upload-status">Uploading to Cloudinary...</span>}
               </div>
-              {previewUrls.length > 0 && (
-                <div className="image-preview-grid">
-                  {previewUrls.map((url, index) => (
-                    <div key={index} className="image-preview">
-                      <img
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        style={{ objectFit: 'cover' }}
-                      />
-                      <button type="button" onClick={() => removeImage(index)}>×</button>
-                    </div>
-                  ))}
-                </div>
-              )}
+
+              <div className="image-preview-grid">
+                {previewUrls.map((url, index) => (
+                  <div key={index} className="image-preview">
+                    <img
+                      src={url}
+                      alt={`Preview ${index + 1}`}
+                      style={{ objectFit: 'cover' }}
+                    />
+                    <button type="button" onClick={() => removeImage(index)}>×</button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="form-actions">
-              <button type="button" className="btn-admin-secondary" onClick={() => setShowForm(false)}>
+              <button type="button" className="btn-admin-secondary" onClick={handleReset}>
                 Cancel
               </button>
-              <button type="submit" className="btn-admin-primary" disabled={saving}>
-                {saving ? 'Saving...' : 'Add Machine'}
+              <button type="submit" className="btn-admin-primary" disabled={saving || uploading}>
+                {saving || uploading ? 'Processing...' : 'Add Machine'}
               </button>
             </div>
           </form>
@@ -312,37 +329,43 @@ export default function AdminMachines() {
               </tr>
             </thead>
             <tbody>
-              {(machines || []).map((machine, index) => {
-                // Try to get first image from array, then from single field, then fallback
-                const imageUrl = getFirstImageUrl(machine.images, null) ||
-                  getFirstImageUrl(machine.image, 'https://via.placeholder.com/60x40?text=No+Image');
-
-                return (
-                  <tr key={machine._id || index}>
-                    <td>
-                      <img
-                        src={imageUrl}
-                        alt={machine.title}
-                        className="table-thumbnail"
-                      />
-                    </td>
-                    <td>{machine.title}</td>
-                    <td>{machine.category}</td>
-                    <td><span className={`badge badge-${(machine.type || machine.purpose || '').toLowerCase()}`}>{machine.type || machine.purpose}</span></td>
-                    <td>{machine.year}</td>
-                    <td>{machine.hours.toLocaleString()}</td>
-                    <td><span className={`badge badge-${machine.status.toLowerCase()}`}>{machine.status}</span></td>
-                    <td>
-                      <button className="btn-icon delete" onClick={() => handleDelete(machine._id)} title="Delete">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="3 6 5 6 21 6" />
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {machines.map((machine, index) => (
+                <tr key={machine._id || index}>
+                  <td>
+                    <img
+                      src={getThumbnail(machine)}
+                      alt={machine.title}
+                      className="table-thumbnail"
+                    />
+                  </td>
+                  <td>{machine.title}</td>
+                  <td>{machine.category}</td>
+                  <td>
+                    <span className={`badge badge-${(machine.type || machine.purpose || '').toLowerCase()}`}>
+                      {machine.type || machine.purpose}
+                    </span>
+                  </td>
+                  <td>{machine.year}</td>
+                  <td>{machine.hours.toLocaleString()}</td>
+                  <td>
+                    <span className={`badge badge-${machine.status.toLowerCase()}`}>
+                      {machine.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="btn-icon delete"
+                      onClick={() => handleDelete(machine._id)}
+                      title="Delete"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
