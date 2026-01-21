@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  background: linear-gradient(135deg, #2F2F2F 0%, #1C1C1C 100%);
   padding: 20px;
 }
 
@@ -27,7 +27,7 @@
 .admin-login-header h1 {
   font-family: 'Oswald', sans-serif;
   font-size: 2rem;
-  color: #1f2937;
+  color: #1C1C1C;
   margin-bottom: 5px;
 }
 
@@ -50,7 +50,7 @@
 
 .admin-form-group label {
   font-weight: 500;
-  color: #374151;
+  color: #3E3E3E;
   font-size: 0.9rem;
 }
 
@@ -120,12 +120,12 @@
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background: #f3f4f6;
+  background: #f8f7f4;
 }
 
 /* Sidebar */
 .admin-sidebar {
-  background: #1f2937;
+  background: #1C1C1C;
   color: white;
   display: flex;
   flex-direction: column;
@@ -150,7 +150,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid #2F2F2F;
 }
 
 .admin-sidebar-header h2 {
@@ -162,7 +162,7 @@
 }
 
 .sidebar-toggle {
-  background: #374151;
+  background: #2F2F2F;
   border: none;
   color: white;
   padding: 8px;
@@ -248,7 +248,7 @@
   min-height: 100vh;
 }
 
-.admin-sidebar.collapsed ~ .admin-main {
+.admin-sidebar.collapsed~.admin-main {
   margin-left: 70px;
 }
 
@@ -266,7 +266,7 @@
 .admin-page-header h1 {
   font-family: 'Oswald', sans-serif;
   font-size: 1.75rem;
-  color: #1f2937;
+  color: #1C1C1C;
   margin: 0;
 }
 
@@ -338,10 +338,25 @@
   justify-content: center;
 }
 
-.stat-icon.machines { background: #dbeafe; color: #2563eb; }
-.stat-icon.parts { background: #fef3c7; color: #d97706; }
-.stat-icon.blogs { background: #d1fae5; color: #059669; }
-.stat-icon.enquiries { background: #ede9fe; color: #7c3aed; }
+.stat-icon.machines {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.stat-icon.parts {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.stat-icon.blogs {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.stat-icon.enquiries {
+  background: #ede9fe;
+  color: #7c3aed;
+}
 
 .stat-content {
   display: flex;
@@ -351,7 +366,7 @@
 .stat-number {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #1C1C1C;
 }
 
 .stat-label {
@@ -377,7 +392,7 @@
 
 .admin-section-header h2 {
   font-size: 1.25rem;
-  color: #1f2937;
+  color: #1C1C1C;
   margin: 0;
 }
 
@@ -414,7 +429,7 @@
 .admin-table th {
   background: #f9fafb;
   font-weight: 600;
-  color: #374151;
+  color: #3E3E3E;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -450,13 +465,40 @@
   text-transform: capitalize;
 }
 
-.badge-rental { background: #dbeafe; color: #1d4ed8; }
-.badge-sales { background: #d1fae5; color: #047857; }
-.badge-parts { background: #fef3c7; color: #b45309; }
-.badge-contact { background: #ede9fe; color: #6d28d9; }
-.badge-available { background: #d1fae5; color: #047857; }
-.badge-sold { background: #fee2e2; color: #dc2626; }
-.badge-unavailable { background: #e5e7eb; color: #6b7280; }
+.badge-rental {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-sales {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.badge-parts {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.badge-contact {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.badge-available {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.badge-sold {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-unavailable {
+  background: #e5e7eb;
+  color: #6b7280;
+}
 
 /* Icon Buttons */
 .btn-icon {
@@ -499,7 +541,7 @@
 
 .admin-form-container h2 {
   font-size: 1.25rem;
-  color: #1f2937;
+  color: #1C1C1C;
   margin-bottom: 24px;
 }
 
@@ -676,19 +718,19 @@
   .admin-sidebar {
     transform: translateX(-100%);
   }
-  
+
   .admin-sidebar.open {
     transform: translateX(0);
   }
-  
+
   .admin-main {
     margin-left: 0;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .image-preview-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -698,17 +740,17 @@
   .admin-stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .admin-page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .filter-tabs {
     flex-wrap: wrap;
   }
-  
+
   .admin-table {
     display: block;
     overflow-x: auto;
