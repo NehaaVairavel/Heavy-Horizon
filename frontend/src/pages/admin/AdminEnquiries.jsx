@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getEnquiries, markEnquiriesAsRead } from '@/lib/api';
+import { formatEnquiryDate } from '@/lib/utils';
 
 export default function AdminEnquiries() {
   const [enquiries, setEnquiries] = useState([]);
@@ -44,18 +45,7 @@ export default function AdminEnquiries() {
   };
 
   const formatDate = (enquiry) => {
-    let date;
-    if (enquiry.createdAt) {
-      date = new Date(enquiry.createdAt);
-    } else if (enquiry._id && enquiry._id.length >= 8) {
-      date = new Date(parseInt(enquiry._id.substring(0, 8), 16) * 1000);
-    } else {
-      return 'N/A';
-    }
-
-    const d = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-    const t = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
-    return `${d} • ${t}`;
+    return formatEnquiryDate(enquiry);
   };
 
   return (

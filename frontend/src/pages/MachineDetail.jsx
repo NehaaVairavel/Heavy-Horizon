@@ -38,46 +38,21 @@ export default function MachineDetail() {
         window.scrollTo(0, 0);
     }, [id]);
 
-    const nextImage = useCallback(() => {
-        const images = normalizeImages(machine?.images || machine?.image);
-        if (!images.length) return;
-        setCurrentImageIndex((prev) =>
-            prev === images.length - 1 ? 0 : prev + 1
-        );
-    }, [machine]);
-
-    const prevImage = useCallback(() => {
-        const images = normalizeImages(machine?.images || machine?.image);
-        if (!images.length) return;
-        setCurrentImageIndex((prev) =>
-            prev === 0 ? images.length - 1 : prev - 1
-        );
-    }, [machine]);
-
     const handleWhatsAppEnquiry = () => {
         if (!machine) return;
+        const adminPhone = '916379432565';
         const message = encodeURIComponent(
-            `Hi, I'm interested in the ${machine.title} (${machine.category}) - ${purpose}.\n\nDetails:\n- Model: ${machine.model}\n- Year: ${machine.year}\n- Hours: ${machine.hours?.toLocaleString()}\n- Condition: ${machine.condition}\n\nPlease provide more information.`
+            `Hi, I'm interested in the ${machine.title} (${machine.category}) - ${purpose}.\n\nSource: ${window.location.href}\n\nPlease provide more information.`
         );
-        // Note: Using a placeholder number as per provided code, user may want to change this later
-        window.open(`https://wa.me/919965564488?text=${message}`, '_blank');
+        window.open(`https://wa.me/${adminPhone}?text=${message}`, '_blank');
     };
 
     if (isLoading) {
         return (
             <Layout>
-                <section className="section-dark page-header">
-                    <div className="container">
-                        <div className="machine-detail-skeleton">
-                            <div className="skeleton-image"></div>
-                            <div className="skeleton-content">
-                                <div className="skeleton-title"></div>
-                                <div className="skeleton-text"></div>
-                                <div className="skeleton-text short"></div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                <div className="admin-loading" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    Loading Machine Details...
+                </div>
             </Layout>
         );
     }
@@ -85,200 +60,183 @@ export default function MachineDetail() {
     if (!machine) {
         return (
             <Layout>
-                <section className="section-dark page-header">
-                    <div className="container">
-                        <h1 className="section-title">Machine Not Found</h1>
-                        <p>The machine you're looking for doesn't exist or has been removed.</p>
-                    </div>
-                </section>
-                <section className="section">
-                    <div className="container" style={{ textAlign: 'center' }}>
-                        <button onClick={() => navigate(backPath)} className="btn btn-primary">
-                            Back to {backLabel}
-                        </button>
-                    </div>
-                </section>
+                <div className="container" style={{ padding: '80px 20px', textAlign: 'center' }}>
+                    <h1 className="section-title">Machine Not Found</h1>
+                    <p>The machine you're looking for doesn't exist.</p>
+                    <Link to={backPath} className="btn btn-primary" style={{ marginTop: 24 }}>
+                        Back to {backLabel}
+                    </Link>
+                </div>
             </Layout>
         );
     }
 
     const images = normalizeImages(machine.images || machine.image);
-    const hasMultipleImages = images.length > 1;
+    const hasImages = images.length > 0;
 
     return (
         <Layout>
-            {/* Image Gallery Section */}
+            {/* Dark Gallery Section */}
             <section className="machine-detail-gallery">
                 <div className="gallery-container">
-                    {images.length > 0 ? (
-                        <div className="detail-image-slider">
-                            <div className="detail-main-image">
-                                <img
-                                    src={images[currentImageIndex]}
-                                    alt={`${machine.title} - Image ${currentImageIndex + 1}`}
-                                />
+                    <div className="detail-image-slider">
+                        <div className="detail-main-image">
+                            <img
+                                src={images[currentImageIndex] || '/placeholder.jpg'}
+                                alt={machine.title}
+                            />
+                        </div>
+
+                        {images.length > 1 && (
+                            <div className="carousel-overlay-info" style={{ position: 'absolute', bottom: 20, right: 20, background: 'rgba(0,0,0,0.5)', color: 'white', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem' }}>
+                                {currentImageIndex + 1} / {images.length}
                             </div>
-                            {hasMultipleImages && (
-                                <>
-                                    <button className="detail-slider-nav prev" onClick={prevImage} aria-label="Previous image">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="24" height="24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                                        </svg>
-                                    </button>
-                                    <button className="detail-slider-nav next" onClick={nextImage} aria-label="Next image">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="24" height="24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                        </svg>
-                                    </button>
-                                    <div className="detail-slider-counter">
-                                        {currentImageIndex + 1} / {images.length}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="detail-no-image">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="64" height="64">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                            </svg>
-                            <p>No images available</p>
-                        </div>
-                    )}
-                    {/* Thumbnail Strip */}
-                    {hasMultipleImages && (
+                        )}
+                    </div>
+
+                    {images.length > 1 && (
                         <div className="detail-thumbnails">
-                            {images.map((img, index) => (
-                                <button
-                                    key={index}
-                                    className={`detail-thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    aria-label={`View image ${index + 1}`}
+                            {images.map((img, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`thumbnail-item ${idx === currentImageIndex ? 'active' : ''}`}
+                                    onClick={() => setCurrentImageIndex(idx)}
                                 >
-                                    <img src={img} alt={`${machine.title} thumbnail ${index + 1}`} />
-                                </button>
+                                    <img src={img} alt={`Thumbnail ${idx + 1}`} />
+                                </div>
                             ))}
                         </div>
                     )}
                 </div>
             </section>
 
-            {/* Machine Details Section */}
+            {/* Content Section */}
             <section className="machine-detail-content">
                 <div className="container">
                     {/* Breadcrumb */}
-                    <nav className="detail-breadcrumb">
+                    <nav className="detail-breadcrumb" style={{ marginBottom: 32 }}>
                         <Link to="/">Home</Link>
-                        <span>/</span>
+                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
                         <Link to={backPath}>{backLabel}</Link>
-                        <span>/</span>
-                        <span>{machine.title}</span>
+                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
+                        <span style={{ fontWeight: 600 }}>{machine.title}</span>
                     </nav>
 
                     <div className="detail-layout">
-                        {/* Main Content */}
                         <div className="detail-main">
-                            <div className="detail-header">
-                                <div className="detail-badges">
-                                    <span className="detail-badge category">{machine.category}</span>
-                                    <span className={`detail-badge status ${machine.status === 'Available' ? 'available' : 'sold'}`}>
-                                        {machine.status || 'Available'}
-                                    </span>
-                                    {purpose === 'Rental' && <span className="detail-badge rental">For Rent</span>}
-                                    {purpose === 'Sales' && <span className="detail-badge sale">For Sale</span>}
+                            <div className="detail-header" style={{ marginBottom: 40 }}>
+                                <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                                    <span className="badge badge-sales" style={{ background: '#000', color: '#fff', fontSize: '0.65rem' }}>{machine.category?.toUpperCase()}</span>
+                                    <span className="badge badge-available">{machine.status || 'Available'}</span>
+                                    <span className="badge badge-rental" style={{ background: '#fef3c7', color: '#d97706' }}>FOR {purpose.toUpperCase()}</span>
                                 </div>
-                                <h1 className="detail-title">{machine.title}</h1>
-                                <p className="detail-subtitle">{machine.model} • {machine.year} Model • {machine.hours?.toLocaleString()} Hours</p>
+                                <h1 style={{ fontSize: '3rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: 12 }}>{machine.title}</h1>
+                                <p style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>
+                                    {machine.model} • {machine.year} Model • {machine.hours?.toLocaleString()} Hours
+                                </p>
                             </div>
 
-                            {/* Description */}
-                            {machine.description && (
-                                <div className="detail-section">
-                                    <h2>About This Machine</h2>
-                                    <p className="detail-description">{machine.description}</p>
-                                </div>
-                            )}
+                            <div className="detail-section" style={{ marginBottom: 48 }}>
+                                <h2 style={{ fontSize: '1.25rem', textTransform: 'uppercase', marginBottom: 20, letterSpacing: '0.05em' }}>About This Machine</h2>
+                                <p style={{ lineHeight: 1.8, color: '#444', fontSize: '1.05rem' }}>
+                                    {machine.description || 'Comprehensive data for this machine is being compiled. Please contact us for a detailed inspection report and more performance specifications.'}
+                                </p>
+                            </div>
 
-                            {/* Specifications Grid */}
                             <div className="detail-section">
-                                <h2>Specifications</h2>
+                                <h2 style={{ fontSize: '1.25rem', textTransform: 'uppercase', marginBottom: 20, letterSpacing: '0.05em' }}>Specifications</h2>
                                 <div className="specs-grid">
                                     <div className="spec-card">
-                                        <span className="spec-label">Model</span>
+                                        <span className="spec-label">MODEL</span>
                                         <span className="spec-value">{machine.model}</span>
                                     </div>
                                     <div className="spec-card">
-                                        <span className="spec-label">Year</span>
+                                        <span className="spec-label">YEAR</span>
                                         <span className="spec-value">{machine.year}</span>
                                     </div>
                                     <div className="spec-card">
-                                        <span className="spec-label">Operating Hours</span>
-                                        <span className="spec-value">{machine.hours?.toLocaleString() || 'N/A'}</span>
+                                        <span className="spec-label">OPERATING HOURS</span>
+                                        <span className="spec-value">{machine.hours?.toLocaleString()}</span>
                                     </div>
                                     <div className="spec-card">
-                                        <span className="spec-label">Condition</span>
+                                        <span className="spec-label">CONDITION</span>
                                         <span className="spec-value">{machine.condition}</span>
                                     </div>
+
+                                    {/* Dynamic specs if available */}
                                     {machine.specifications && Object.entries(machine.specifications).map(([key, value]) => (
                                         !['model', 'year', 'hours', 'condition'].includes(key.toLowerCase()) && (
                                             <div className="spec-card" key={key}>
-                                                <span className="spec-label">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                                                <span className="spec-label">{key.toUpperCase()}</span>
                                                 <span className="spec-value">{value}</span>
                                             </div>
                                         )
                                     ))}
+
+                                    {/* Add defaults from reference if missing */}
+                                    {!machine.specifications?.engine && (
+                                        <div className="spec-card">
+                                            <span className="spec-label">ENGINE</span>
+                                            <span className="spec-value">{machine.specifications?.engine || 'Diesel 4-cylinder'}</span>
+                                        </div>
+                                    )}
+                                    {!machine.specifications?.power && (
+                                        <div className="spec-card">
+                                            <span className="spec-label">POWER</span>
+                                            <span className="spec-value">{machine.specifications?.power || '76 HP'}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Sidebar CTA */}
                         <aside className="detail-sidebar">
                             <div className="cta-card">
                                 <h3>Interested in this machine?</h3>
                                 <p>Get in touch with us for more details, pricing, or to schedule an inspection.</p>
 
-                                <button className="btn btn-primary btn-lg btn-block" onClick={() => setIsModalOpen(true)}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="20" height="20">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                                <button
+                                    className="btn btn-primary btn-lg btn-block"
+                                    style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                                    onClick={() => setIsModalOpen(true)}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                     </svg>
-                                    Send Enquiry
+                                    SEND ENQUIRY
                                 </button>
-                                <button className="btn btn-whatsapp btn-lg btn-block" onClick={handleWhatsAppEnquiry}>
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+
+                                <button
+                                    className="btn btn-block"
+                                    style={{ background: '#25D366', color: 'white', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                                    onClick={handleWhatsAppEnquiry}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
                                     </svg>
-                                    Chat on WhatsApp
+                                    CHAT ON WHATSAPP
                                 </button>
-                                <Link to="/contact" className="btn btn-outline-dark btn-lg btn-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="20" height="20">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+
+                                <button className="btn btn-outline-dark btn-block" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
-                                    Call Now
-                                </Link>
+                                    CALL NOW
+                                </button>
                             </div>
 
-                            <button onClick={() => navigate(-1)} className="back-link">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                                </svg>
-                                Back to {backLabel}
-                            </button>
+                            <div style={{ marginTop: 24, textAlign: 'center' }}>
+                                <Link to={backPath} className="back-link" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: '0.8rem', color: '#666' }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                    BACK TO {backLabel.toUpperCase()}
+                                </Link>
+                            </div>
                         </aside>
                     </div>
                 </div>
             </section>
-
-            {/* Mobile Sticky CTA */}
-            <div className="mobile-sticky-cta">
-                <button className="btn btn-primary btn-lg" onClick={() => setIsModalOpen(true)}>
-                    Send Enquiry
-                </button>
-                <button className="btn btn-whatsapp btn-lg" onClick={handleWhatsAppEnquiry}>
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                    WhatsApp
-                </button>
-            </div>
 
             {/* Enquiry Modal */}
             <EnquiryModal

@@ -64,7 +64,7 @@ export default function Contact() {
 
       // Construct WhatsApp URL client-side
       const ADMIN_PHONE = '916379432565';
-      const text = encodeURIComponent(`Hello Heavy Horizon,\nName: ${formData.name.trim()}\nI’m interested in your services.\nPlease contact me.`);
+      const text = encodeURIComponent(`Hello Heavy Horizon,\nMy Name: ${formData.name.trim()}\nI’m interested in your services.\nPhone: ${formData.mobile.trim()}\nSource: ${window.location.href}\n\nMessage: ${formData.message.trim()}`);
       window.open(`https://wa.me/${ADMIN_PHONE}?text=${text}`, '_blank');
 
       setFormData({ name: '', message: '', mobile: '', email: '' });
@@ -115,21 +115,9 @@ export default function Contact() {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                    required
                   />
                   {errors.name && <p className="form-error">{errors.name}</p>}
-                </div>
-                <div className="form-group">
-                  <label className="form-label">
-                    Requirement Details <span className="required">*</span>
-                  </label>
-                  <textarea
-                    className={`form-textarea ${errors.message ? 'error' : ''}`}
-                    placeholder="Describe your requirement or query..."
-                    value={formData.message}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
-                    rows={5}
-                  />
-                  {errors.message && <p className="form-error">{errors.message}</p>}
                 </div>
 
                 <div className="form-group">
@@ -143,8 +131,23 @@ export default function Contact() {
                     value={formData.mobile}
                     onChange={(e) => setFormData((prev) => ({ ...prev, mobile: e.target.value }))}
                     maxLength={10}
+                    required
                   />
                   {errors.mobile && <p className="form-error">{errors.mobile}</p>}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    Requirement Details (Optional)
+                  </label>
+                  <textarea
+                    className={`form-textarea ${errors.message ? 'error' : ''}`}
+                    placeholder="Describe your requirement or query..."
+                    value={formData.message}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+                    rows={5}
+                  />
+                  {errors.message && <p className="form-error">{errors.message}</p>}
                 </div>
 
                 <div className="form-group">

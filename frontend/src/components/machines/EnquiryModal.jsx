@@ -20,10 +20,6 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
       newErrors.name = 'Name is required';
     }
 
-    if (!formData.message.trim()) {
-      newErrors.message = 'Please enter your requirement';
-    }
-
     if (!formData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
     } else if (!/^[0-9]{10}$/.test(formData.mobile.trim())) {
@@ -54,9 +50,10 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
         message: formData.message.trim(),
         mobile: formData.mobile.trim(),
         email: formData.email.trim() || undefined,
+        source: window.location.href
       };
 
-      const response = await submitEnquiry(enquiryData);
+      await submitEnquiry(enquiryData);
 
       toast({
         title: 'Enquiry Submitted!',
@@ -65,7 +62,7 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
 
       const ADMIN_PHONE = '916379432565';
       const itemName = machine?.title || machine?.name || enquiryType || 'your services';
-      const text = encodeURIComponent(`Hello Heavy Horizon,\nName: ${formData.name.trim()}\nI’m interested in ${itemName}.\nPlease contact me.`);
+      const text = encodeURIComponent(`Hello Heavy Horizon,\nMy Name: ${formData.name.trim()}\nI’m interested in ${itemName}.\nPhone: ${formData.mobile.trim()}\nSource: ${window.location.href}\n\nMessage: ${formData.message.trim()}`);
       window.open(`https://wa.me/${ADMIN_PHONE}?text=${text}`, '_blank');
 
       setFormData({ name: '', message: '', mobile: '', email: '' });
@@ -113,21 +110,9 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                required
               />
               {errors.name && <p className="form-error">{errors.name}</p>}
-            </div>
-            <div className="form-group">
-              <label className="form-label">
-                Requirement / Query <span className="required">*</span>
-              </label>
-              <textarea
-                className={`form-textarea ${errors.message ? 'error' : ''}`}
-                placeholder="Describe your requirement..."
-                value={formData.message}
-                onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
-                rows={4}
-              />
-              {errors.message && <p className="form-error">{errors.message}</p>}
             </div>
 
             <div className="form-group">
@@ -141,8 +126,23 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
                 value={formData.mobile}
                 onChange={(e) => setFormData((prev) => ({ ...prev, mobile: e.target.value }))}
                 maxLength={10}
+                required
               />
               {errors.mobile && <p className="form-error">{errors.mobile}</p>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Requirement / Query (Optional)
+              </label>
+              <textarea
+                className={`form-textarea ${errors.message ? 'error' : ''}`}
+                placeholder="Describe your requirement..."
+                value={formData.message}
+                onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+                rows={4}
+              />
+              {errors.message && <p className="form-error">{errors.message}</p>}
             </div>
 
             <div className="form-group">

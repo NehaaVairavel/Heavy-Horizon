@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 import bcrypt, jwt, os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from bson import ObjectId
 
@@ -231,7 +231,8 @@ def delete_blog(id):
 @app.route("/api/enquiry", methods=["POST"])
 def enquiry():
     data = request.json
-    data["createdAt"] = datetime.utcnow().isoformat()
+    # Store as ISO string with UTC suffix Z
+    data["createdAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
     data["isRead"] = False
     enquiries.insert_one(data)
     return jsonify({"message": "Enquiry submitted"})

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getDashboardCounts, getEnquiries } from '@/lib/api';
+import { formatEnquiryDate } from '@/lib/utils';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -119,8 +120,7 @@ export default function AdminDashboard() {
             </thead>
             <tbody>
               {(recentEnquiries || []).map((enquiry, index) => {
-                const date = enquiry.createdAt ? new Date(enquiry.createdAt) : (enquiry._id && enquiry._id.length >= 8 ? new Date(parseInt(enquiry._id.substring(0, 8), 16) * 1000) : null);
-                const formattedDate = date ? `${date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} • ${date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()}` : 'N/A';
+                const formattedDate = formatEnquiryDate(enquiry);
 
                 return (
                   <tr key={enquiry.id || index}>

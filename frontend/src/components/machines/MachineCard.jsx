@@ -2,133 +2,117 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { normalizeImages } from '@/lib/images';
 
-export function MachineCard({ machine, onEnquiry, showStatus = false }) {
+export function MachineCard({ machine, onEnquiry }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const isSales = location.pathname.startsWith('/sales');
   const detailPath = isSales
-    ? `/sales/machine/${machine._id}`
-    : `/services/machine/${machine._id}`;
+    ? `/sales/${machine._id}`
+    : `/services/${machine._id}`;
 
   const handleCardClick = () => {
     navigate(detailPath);
   };
 
-  // Robustly normalize images from any legacy format
   const normalizedImages = normalizeImages(machine?.images || machine?.image);
-  if (normalizedImages.length > 0) {
-    console.log(`DEBUG: MachineCard [${machine?.title}] rendering with ${normalizedImages.length} images:`, normalizedImages);
-  }
   const hasImages = normalizedImages.length > 0;
-  // Use a clean placeholder if no images
-  const fallbackUrl = "https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800";
 
   const nextImage = (e) => {
     e.stopPropagation();
-    if (!hasImages) return;
-    setCurrentImageIndex((prev) =>
-      prev === normalizedImages.length - 1 ? 0 : prev + 1
-    );
+    setCurrentImageIndex((prev) => (prev + 1) % normalizedImages.length);
   };
 
   const prevImage = (e) => {
     e.stopPropagation();
-    if (!hasImages) return;
-    setCurrentImageIndex((prev) =>
-      prev === 0 ? normalizedImages.length - 1 : prev - 1
-    );
+    setCurrentImageIndex((prev) => (prev - 1 + normalizedImages.length) % normalizedImages.length);
   };
 
   return (
     <div className="card card-clickable" onClick={handleCardClick}>
       <div className="card-image">
+        {machine.category && (
+          <span className="category-badge">{machine.category}</span>
+        )}
+
         {hasImages ? (
-          <div className="image-slider">
+          <>
             <img
               src={normalizedImages[currentImageIndex]}
-              alt={`${machine.title || 'Machine'} - Image ${currentImageIndex + 1}`}
-              loading="lazy"
-              style={{ objectFit: 'cover' }}
-              onError={(e) => {
-                console.warn(`Failed to load image: ${normalizedImages[currentImageIndex]}`);
-                e.target.src = fallbackUrl;
-              }}
+              alt={machine.title}
+              style={{ width: '100%', height: '220px', objectFit: 'cover' }}
             />
-
             {normalizedImages.length > 1 && (
               <>
-                <button className="slider-nav prev" onClick={prevImage} aria-label="Previous image">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                <button className="carousel-btn prev" onClick={prevImage} aria-label="Previous image">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
                   </svg>
                 </button>
-                <button className="slider-nav next" onClick={nextImage} aria-label="Next image">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                <button className="carousel-btn next" onClick={nextImage} aria-label="Next image">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
                   </svg>
                 </button>
-
-                <div className="slider-dots">
-                  {normalizedImages.map((_, index) => (
-                    <button
-                      key={index}
-                      className={`slider-dot ${index === currentImageIndex ? 'active' : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex(index);
-                      }}
-                      aria-label={`Go to image ${index + 1}`}
+                <div className="carousel-dots">
+                  {normalizedImages.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={`carousel-dot ${idx === currentImageIndex ? 'active' : ''}`}
                     />
                   ))}
                 </div>
               </>
             )}
-          </div>
+          </>
         ) : (
-          <div className="image-placeholder">
-            <img
-              src={fallbackUrl}
-              alt="No image available"
-              loading="lazy"
-              style={{ objectFit: 'cover' }}
-            />
-          </div>
+          <div className="no-image-placeholder" style={{ height: '220px' }}>No Image</div>
         )}
-
-        <span className="card-badge">{machine.category}</span>
-        {showStatus && <span className={`card-status ${machine.status === 'Sold' ? 'sold' : ''}`}>{machine.status}</span>}
       </div>
 
       <div className="card-body">
-        <h3 className="card-title" style={{ marginBottom: '8px' }}>{machine.title}</h3>
+        <h3 className="card-title">{machine.title}</h3>
 
-        <div className="card-specs" style={{ marginBottom: '12px', gap: '8px' }}>
-          <div className="spec-item">
-            <label>Model</label>
-            <span>{machine.model}</span>
+        <div className="card-specs-grid">
+          <div className="card-spec-item">
+            <span className="card-spec-label">MODEL</span>
+            <span className="card-spec-value">{machine.model || 'N/A'}</span>
           </div>
-          <div className="spec-item">
-            <label>Year</label>
-            <span>{machine.year}</span>
+          <div className="card-spec-item">
+            <span className="card-spec-label">YEAR</span>
+            <span className="card-spec-value">{machine.year || 'N/A'}</span>
           </div>
-          <div className="spec-item">
-            <label>Hours</label>
-            <span>{machine.hours?.toLocaleString() || '0'}</span>
+          <div className="card-spec-item">
+            <span className="card-spec-label">HOURS</span>
+            <span className="card-spec-value">{machine.hours?.toLocaleString() || 'N/A'}</span>
           </div>
-          <div className="spec-item">
-            <label>Condition</label>
-            <span>{machine.condition === 'Pure Earthwork Condition' ? 'Earthwork' : 'Good'}</span>
+          <div className="card-spec-item">
+            <span className="card-spec-label">CONDITION</span>
+            <span className="card-spec-value">{machine.condition || 'N/A'}</span>
           </div>
         </div>
 
-        <button className="btn btn-primary btn-block" onClick={(e) => {
-          e.stopPropagation();
-          onEnquiry(machine);
-        }}>
-          Send Enquiry
-        </button>
+        <div className="card-actions">
+          <button
+            className="btn btn-outline-primary btn-block"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCardClick();
+            }}
+          >
+            VIEW DETAILS
+          </button>
+          <button
+            className="btn btn-primary btn-block"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEnquiry(machine);
+            }}
+          >
+            SEND ENQUIRY
+          </button>
+        </div>
       </div>
     </div>
   );

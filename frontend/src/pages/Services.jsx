@@ -5,19 +5,19 @@ const serviceCategories = [
   {
     title: 'Backhoe Loaders',
     description: 'Powerful and versatile machines ideal for excavation, loading, trenching, and earthwork operations.',
-    path: '/services/backhoe-loaders',
+    path: '/services/category/backhoe-loaders',
     imageKey: 'backhoe-loaders',
   },
   {
     title: 'Excavators',
     description: 'Heavy-duty excavators suitable for large-scale digging, demolition, and infrastructure projects.',
-    path: '/services/excavators',
+    path: '/services/category/excavators',
     imageKey: 'excavators',
   },
   {
     title: 'Backhoe Loaders with Breakers',
     description: 'Backhoe loaders equipped with hydraulic breakers for rock breaking and hard surface demolition.',
-    path: '/services/backhoe-breakers',
+    path: '/services/category/backhoe-breakers',
     imageKey: 'backhoe-breakers',
   },
 ];

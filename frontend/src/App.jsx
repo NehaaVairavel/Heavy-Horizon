@@ -46,11 +46,11 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/services/:category" element={<ServiceCategory />} />
-            <Route path="/services/machine/:id" element={<MachineDetail />} />
+            <Route path="/services/:id" element={<MachineDetail />} />
+            <Route path="/services/category/:category" element={<ServiceCategory />} />
             <Route path="/sales" element={<Sales />} />
-            <Route path="/sales/:category" element={<SalesCategory />} />
-            <Route path="/sales/machine/:id" element={<MachineDetail />} />
+            <Route path="/sales/:id" element={<MachineDetail />} />
+            <Route path="/sales/category/:category" element={<SalesCategory />} />
             <Route path="/spare-parts" element={<SpareParts />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/blogs/:id" element={<BlogDetail />} />
