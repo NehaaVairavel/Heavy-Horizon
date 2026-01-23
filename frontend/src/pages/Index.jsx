@@ -124,7 +124,7 @@ export default function Index() {
       {/* 2. About Section - White Theme as per Image 1 */}
       <section className="section section-white">
         <div className="container">
-          <div className="grid-2" style={{ alignItems: 'center', gap: '80px', gridTemplateColumns: '1fr 1.2fr' }}>
+          <div className="about-grid">
             <div className="about-content">
               <span className="section-label">ABOUT US</span>
               <h2 className="section-title">
@@ -152,13 +152,13 @@ export default function Index() {
             <div className="features-grid-alt">
               {features.map((feature, index) => (
                 <div key={index} className="feature-card-detailed">
-                  <div className="feature-icon" style={{ borderRadius: '10px', width: '40px', height: '40px', marginBottom: '16px' }}>
+                  <div className="feature-icon">
                     {feature.icon}
                   </div>
-                  <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', marginBottom: '8px', textTransform: 'uppercase' }}>
+                  <h3>
                     {feature.title}
                   </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8125rem', lineHeight: '1.5' }}>
+                  <p>
                     {feature.description}
                   </p>
                 </div>

@@ -231,8 +231,11 @@ def delete_blog(id):
 @app.route("/api/enquiry", methods=["POST"])
 def enquiry():
     data = request.json
-    # Store as ISO string with UTC suffix Z
-    data["createdAt"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    # Store as ISO string with IST offset for clarity or just local IST
+    # But user specifically asked for Asia/Kolkata
+    import pytz
+    ist = pytz.timezone('Asia/Kolkata')
+    data["createdAt"] = datetime.now(ist).isoformat()
     data["isRead"] = False
     enquiries.insert_one(data)
     return jsonify({"message": "Enquiry submitted"})

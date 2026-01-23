@@ -76,20 +76,38 @@ export default function MachineDetail() {
 
     return (
         <Layout>
-            {/* Dark Gallery Section */}
+            {/* 1. Top Breadcrumb Section */}
+            <section className="breadcrumb-section" style={{ padding: '20px 0 10px', background: '#fdfdfd' }}>
+                <div className="container">
+                    <nav className="detail-breadcrumb">
+                        <Link to="/">Home</Link>
+                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
+                        <Link to={backPath}>{backLabel}</Link>
+                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
+                        <span style={{ fontWeight: 600 }}>{machine.title}</span>
+                    </nav>
+                </div>
+            </section>
+
+            {/* 2. Top Image Gallery Section */}
             <section className="machine-detail-gallery">
                 <div className="gallery-container">
                     <div className="detail-image-slider">
-                        <div className="detail-main-image">
-                            <img
-                                src={images[currentImageIndex] || '/placeholder.jpg'}
-                                alt={machine.title}
-                            />
-                        </div>
-
-                        {images.length > 1 && (
-                            <div className="carousel-overlay-info" style={{ position: 'absolute', bottom: 20, right: 20, background: 'rgba(0,0,0,0.5)', color: 'white', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem' }}>
-                                {currentImageIndex + 1} / {images.length}
+                        {hasImages ? (
+                            <div className="detail-main-image">
+                                <img
+                                    src={images[currentImageIndex]}
+                                    alt={machine.title}
+                                />
+                                {images.length > 1 && (
+                                    <div className="carousel-overlay-info">
+                                        {currentImageIndex + 1} / {images.length}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="no-image-placeholder">
+                                <span>No image available</span>
                             </div>
                         )}
                     </div>
@@ -110,82 +128,50 @@ export default function MachineDetail() {
                 </div>
             </section>
 
-            {/* Content Section */}
+            {/* 3. Details and Specifications Section */}
             <section className="machine-detail-content">
                 <div className="container">
-                    {/* Breadcrumb */}
-                    <nav className="detail-breadcrumb" style={{ marginBottom: 32 }}>
-                        <Link to="/">Home</Link>
-                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
-                        <Link to={backPath}>{backLabel}</Link>
-                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
-                        <span style={{ fontWeight: 600 }}>{machine.title}</span>
-                    </nav>
-
                     <div className="detail-layout">
                         <div className="detail-main">
+                            {/* Header Section directly below image */}
                             <div className="detail-header" style={{ marginBottom: 40 }}>
                                 <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                                     <span className="badge badge-sales" style={{ background: '#000', color: '#fff', fontSize: '0.65rem' }}>{machine.category?.toUpperCase()}</span>
                                     <span className="badge badge-available">{machine.status || 'Available'}</span>
                                     <span className="badge badge-rental" style={{ background: '#fef3c7', color: '#d97706' }}>FOR {purpose.toUpperCase()}</span>
                                 </div>
-                                <h1 style={{ fontSize: '3rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: 12 }}>{machine.title}</h1>
-                                <p style={{ color: 'var(--muted-foreground)', fontSize: '1.1rem' }}>
-                                    {machine.model} • {machine.year} Model • {machine.hours?.toLocaleString()} Hours
+                                <h1 className="detail-title-main">{machine.title}</h1>
+                                <p className="detail-subtitle-main">
+                                    {machine.model || '-'} • {machine.year || '-'} Model • {machine.hours ? `${machine.hours.toLocaleString()} Hours` : '-'}
                                 </p>
                             </div>
 
                             <div className="detail-section" style={{ marginBottom: 48 }}>
-                                <h2 style={{ fontSize: '1.25rem', textTransform: 'uppercase', marginBottom: 20, letterSpacing: '0.05em' }}>About This Machine</h2>
-                                <p style={{ lineHeight: 1.8, color: '#444', fontSize: '1.05rem' }}>
+                                <h2 className="detail-section-title">About This Machine</h2>
+                                <p className="detail-description">
                                     {machine.description || 'Comprehensive data for this machine is being compiled. Please contact us for a detailed inspection report and more performance specifications.'}
                                 </p>
                             </div>
 
                             <div className="detail-section">
-                                <h2 style={{ fontSize: '1.25rem', textTransform: 'uppercase', marginBottom: 20, letterSpacing: '0.05em' }}>Specifications</h2>
+                                <h2 className="detail-section-title">Specifications</h2>
                                 <div className="specs-grid">
                                     <div className="spec-card">
-                                        <span className="spec-label">MODEL</span>
-                                        <span className="spec-value">{machine.model}</span>
+                                        <span className="spec-label">1. MODEL</span>
+                                        <span className="spec-value">{machine.model || '-'}</span>
                                     </div>
                                     <div className="spec-card">
-                                        <span className="spec-label">YEAR</span>
-                                        <span className="spec-value">{machine.year}</span>
+                                        <span className="spec-label">2. YEAR</span>
+                                        <span className="spec-value">{machine.year || '-'}</span>
                                     </div>
                                     <div className="spec-card">
-                                        <span className="spec-label">OPERATING HOURS</span>
-                                        <span className="spec-value">{machine.hours?.toLocaleString()}</span>
+                                        <span className="spec-label">3. OPERATING HOURS</span>
+                                        <span className="spec-value">{machine.hours ? machine.hours.toLocaleString() : '-'}</span>
                                     </div>
                                     <div className="spec-card">
-                                        <span className="spec-label">CONDITION</span>
-                                        <span className="spec-value">{machine.condition}</span>
+                                        <span className="spec-label">4. CONDITION</span>
+                                        <span className="spec-value">{machine.condition || '-'}</span>
                                     </div>
-
-                                    {/* Dynamic specs if available */}
-                                    {machine.specifications && Object.entries(machine.specifications).map(([key, value]) => (
-                                        !['model', 'year', 'hours', 'condition'].includes(key.toLowerCase()) && (
-                                            <div className="spec-card" key={key}>
-                                                <span className="spec-label">{key.toUpperCase()}</span>
-                                                <span className="spec-value">{value}</span>
-                                            </div>
-                                        )
-                                    ))}
-
-                                    {/* Add defaults from reference if missing */}
-                                    {!machine.specifications?.engine && (
-                                        <div className="spec-card">
-                                            <span className="spec-label">ENGINE</span>
-                                            <span className="spec-value">{machine.specifications?.engine || 'Diesel 4-cylinder'}</span>
-                                        </div>
-                                    )}
-                                    {!machine.specifications?.power && (
-                                        <div className="spec-card">
-                                            <span className="spec-label">POWER</span>
-                                            <span className="spec-value">{machine.specifications?.power || '76 HP'}</span>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                         </div>

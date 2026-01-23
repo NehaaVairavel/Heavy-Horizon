@@ -41,7 +41,7 @@ export function MachineCard({ machine, onEnquiry }) {
             <img
               src={normalizedImages[currentImageIndex]}
               alt={machine.title}
-              style={{ width: '100%', height: '220px', objectFit: 'cover' }}
+              style={{ width: '100%', height: '200px', objectFit: 'cover' }}
             />
             {normalizedImages.length > 1 && (
               <>

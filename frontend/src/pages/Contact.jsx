@@ -21,9 +21,7 @@ export default function Contact() {
       newErrors.name = 'Name is required';
     }
 
-    if (!formData.message.trim()) {
-      newErrors.message = 'Please enter your requirement';
-    }
+    // Message is optional
 
     if (!formData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
