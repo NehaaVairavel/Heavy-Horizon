@@ -133,6 +133,17 @@ def get_machines():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/machines/<id>", methods=["GET"])
+def get_machine(id):
+    try:
+        machine = machines.find_one({"_id": ObjectId(id)})
+        if not machine:
+            return jsonify({"error": "Machine not found"}), 404
+        machine["_id"] = str(machine["_id"])
+        return jsonify(machine)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/admin/machines", methods=["POST"])
 @token_required
 def add_machine():
