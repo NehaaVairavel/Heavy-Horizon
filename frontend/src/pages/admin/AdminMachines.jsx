@@ -260,13 +260,13 @@ export default function AdminMachines() {
             <div className="form-row">
               <div className="admin-form-group">
                 <label>Condition *</label>
-                <select
+                <input
+                  type="text"
                   value={formData.condition}
                   onChange={e => setFormData({ ...formData, condition: e.target.value })}
-                >
-                  <option value="Pure Earthwork Condition">Pure Earthwork Condition</option>
-                  <option value="Good Condition">Good Condition</option>
-                </select>
+                  placeholder="e.g., Good condition"
+                  required
+                />
               </div>
               <div className="admin-form-group">
                 <label>Status *</label>

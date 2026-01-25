@@ -5,7 +5,11 @@ export default function ScrollToTop() {
     const { pathname } = useLocation();
 
     useEffect(() => {
-        window.scrollTo(0, 0);
+        // Skip auto-scroll for pages that handle their own scrolling
+        if (pathname === '/sales' || pathname === '/services') {
+            return;
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [pathname]);
 
     return null;

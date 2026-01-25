@@ -76,20 +76,7 @@ export default function MachineDetail() {
 
     return (
         <Layout>
-            {/* 1. Top Breadcrumb Section */}
-            <section className="breadcrumb-section" style={{ padding: '20px 0 10px', background: '#fdfdfd' }}>
-                <div className="container">
-                    <nav className="detail-breadcrumb">
-                        <Link to="/">Home</Link>
-                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
-                        <Link to={backPath}>{backLabel}</Link>
-                        <span style={{ margin: '0 10px', color: '#ccc' }}>/</span>
-                        <span style={{ fontWeight: 600 }}>{machine.title}</span>
-                    </nav>
-                </div>
-            </section>
-
-            {/* 2. Top Image Gallery Section */}
+            {/* 1. Top Image Gallery Section */}
             <section className="machine-detail-gallery">
                 <div className="gallery-container">
                     <div className="detail-image-slider">
@@ -100,9 +87,35 @@ export default function MachineDetail() {
                                     alt={machine.title}
                                 />
                                 {images.length > 1 && (
-                                    <div className="carousel-overlay-info">
-                                        {currentImageIndex + 1} / {images.length}
-                                    </div>
+                                    <>
+                                        <button
+                                            className="carousel-btn prev"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+                                            }}
+                                            aria-label="Previous image"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            className="carousel-btn next"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setCurrentImageIndex((prev) => (prev + 1) % images.length);
+                                            }}
+                                            aria-label="Next image"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                                <path fillRule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z" />
+                                            </svg>
+                                        </button>
+                                        <div className="carousel-overlay-info">
+                                            {currentImageIndex + 1} / {images.length}
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         ) : (
@@ -182,13 +195,9 @@ export default function MachineDetail() {
                                 <p>Get in touch with us for more details, pricing, or to schedule an inspection.</p>
 
                                 <button
-                                    className="btn btn-primary btn-lg btn-block"
-                                    style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+                                    className="btn btn-primary btn-block"
                                     onClick={() => setIsModalOpen(true)}
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                    </svg>
                                     SEND ENQUIRY
                                 </button>
 
@@ -203,12 +212,12 @@ export default function MachineDetail() {
                                     CHAT ON WHATSAPP
                                 </button>
 
-                                <button className="btn btn-outline-dark btn-block" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                                <a href="tel:+916379432565" className="btn btn-outline-dark btn-block" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, textDecoration: 'none' }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
                                     CALL NOW
-                                </button>
+                                </a>
                             </div>
 
                             <div style={{ marginTop: 24, textAlign: 'center' }}>

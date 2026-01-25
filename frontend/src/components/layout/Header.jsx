@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'Our Services', path: '/services' },
-  { label: 'Sales', path: '/sales' },
-  { label: 'Used Parts', path: '/spare-parts' },
-  { label: 'Blogs', path: '/blogs' },
-  { label: 'Contact Us', path: '/contact' },
+  { label: 'HOME', path: '/' },
+  { label: 'OUR SERVICES', path: '/services' },
+  { label: 'SALES', path: '/sales' },
+  { label: 'USED PARTS', path: '/spare-parts' },
+  { label: 'BLOGS', path: '/blogs' },
+  { label: 'CONTACT US', path: '/contact' },
 ];
 
 export function Header() {
@@ -33,20 +33,44 @@ export function Header() {
     return location.pathname.startsWith(path);
   };
 
+  // Get current page name for header breadcrumb
+  const getCurrentPageName = () => {
+    const path = location.pathname;
+    if (path === '/') return null;
+
+    const matchedItem = navItems.find(item => item.path !== '/' && path.startsWith(item.path));
+    if (matchedItem) return matchedItem.label;
+
+    // Fallback for subpaths like categories or detail pages if not matched above
+    if (path.includes('/services')) return 'OUR SERVICES';
+    if (path.includes('/sales')) return 'SALES';
+    if (path.includes('/spare-parts')) return 'USED PARTS';
+    if (path.includes('/blogs')) return 'BLOGS';
+    if (path.includes('/contact')) return 'CONTACT US';
+
+    return null;
+  };
+
+  const pageName = getCurrentPageName();
+
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
-        <Link to="/" className="logo">
-          <div className="logo-icon">
-            <img src="/logo.png" alt="H" />
-          </div>
-          <div className="logo-text">
+        <div className="header-logo-group">
+          <Link to="/" className="logo">
+            <div className="logo-icon">
+              <img src="/logo.png" alt="H" />
+            </div>
             <span className="logo-name">
-              Heavy <span>Horizon</span>
+              HEAVY <span>HORIZON</span>
             </span>
-            <span className="logo-tagline">Equipment Solutions • Chennai</span>
-          </div>
-        </Link>
+          </Link>
+          {pageName && (
+            <div className="header-breadcrumb">
+              / <span className="current">{pageName}</span>
+            </div>
+          )}
+        </div>
 
         <nav className="nav-menu">
           {navItems.map((item) => (

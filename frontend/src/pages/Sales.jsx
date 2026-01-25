@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { EquipmentCard } from '@/components/EquipmentCard';
 
@@ -23,6 +24,20 @@ const salesCategories = [
 ];
 
 export default function Sales() {
+  useEffect(() => {
+    const machinesSection = document.getElementById('machines-section');
+    if (machinesSection) {
+      const navbarHeight = 80;
+      const elementPosition = machinesSection.getBoundingClientRect().top + window.pageYOffset;
+      const offsetPosition = elementPosition - navbarHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
+
   return (
     <Layout>
       {/* Page Header */}
@@ -38,7 +53,7 @@ export default function Sales() {
       </section>
 
       {/* Categories */}
-      <section className="section">
+      <section className="section" id="machines-section">
         <div className="container">
           <div className="section-header">
             <span className="section-label">Choose Category</span>
