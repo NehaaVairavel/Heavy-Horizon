@@ -184,13 +184,19 @@ export default function MachineDetail() {
                                     <div className="spec-card">
                                         <span className="spec-label">4. CONDITION</span>
                                         <div className="spec-value">
-                                            {machine.condition ? (
-                                                <ul className="spec-list">
-                                                    {machine.condition.split('\n').filter(line => line.trim()).map((line, i) => (
-                                                        <li key={i}>{line.replace(/^[•\d\.\-\*]\s*/, '').trim()}</li>
-                                                    ))}
-                                                </ul>
-                                            ) : '-'}
+                                            {machine.condition ? (() => {
+                                                const lines = machine.condition.split('\n').filter(line => line.trim());
+                                                const isNumbered = lines.some(line => /^\d+\./.test(line.trim()));
+                                                const ListTag = isNumbered ? 'ol' : 'ul';
+
+                                                return (
+                                                    <ListTag className={`spec-list ${isNumbered ? 'numbered' : ''}`}>
+                                                        {lines.map((line, i) => (
+                                                            <li key={i}>{line.replace(/^([•\-\*]|\d+\.)\s*/, '').trim()}</li>
+                                                        ))}
+                                                    </ListTag>
+                                                );
+                                            })() : '-'}
                                         </div>
                                     </div>
                                 </div>

@@ -2647,6 +2647,25 @@ textarea {
   top: -1px;
 }
 
+.spec-list.numbered {
+  list-style: decimal;
+  padding-left: 20px;
+}
+
+.spec-list.numbered li {
+  padding-left: 5px;
+}
+
+.spec-list.numbered li::before {
+  content: none;
+}
+
+.spec-list.numbered li::marker {
+  color: var(--primary);
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
 .detail-title-main {
   font-size: 3.5rem;
   font-weight: 800;
