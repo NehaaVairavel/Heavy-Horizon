@@ -292,17 +292,28 @@ def delete_blog(id):
     return jsonify({"message": "Blog deleted"})
 
 # ---------------- ENQUIRIES ----------------
-@app.route("/api/enquiry", methods=["POST"])
+@app.route("/api/enquiries", methods=["POST"])
 def enquiry():
     data = request.json
-    # Store as ISO string with IST offset for clarity or just local IST
-    # But user specifically asked for Asia/Kolkata
+    
+    # 1. Validation
+    name = data.get("name", "").strip()
+    mobile = data.get("mobile", "").strip()
+    
+    if not name or not mobile:
+        return jsonify({"error": "Name and mobile are required"}), 400
+        
+    if not re.match(r'^\d{10}$', mobile):
+        return jsonify({"error": "Mobile number must be exactly 10 digits"}), 400
+
+    # Store as ISO string with IST offset for clarity
     import pytz
     ist = pytz.timezone('Asia/Kolkata')
     data["createdAt"] = datetime.now(ist).isoformat()
-    data["isRead"] = False
+    data["is_viewed"] = False
+    
     enquiries.insert_one(data)
-    return jsonify({"message": "Enquiry submitted"})
+    return jsonify({"message": "Enquiry submitted successfully"})
 
 @app.route("/admin/enquiries", methods=["GET"])
 @token_required
@@ -318,7 +329,7 @@ def get_enquiries():
 @token_required
 def mark_enquiries_read():
     try:
-        enquiries.update_many({"isRead": False}, {"$set": {"isRead": True}})
+        enquiries.update_many({"is_viewed": False}, {"$set": {"is_viewed": True}})
         return jsonify({"message": "Enquiries marked as read"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -332,8 +343,8 @@ def get_dashboard_counts():
         m_count = machines.count_documents({})
         p_count = parts.count_documents({})
         b_count = blogs.count_documents({})
-        # Count only unread enquiries for the notification badge
-        unread_e_count = enquiries.count_documents({"isRead": False})
+        # Count only unviewed enquiries for the notification badge
+        unread_e_count = enquiries.count_documents({"is_viewed": False})
         total_e_count = enquiries.count_documents({})
         
         print(f"DEBUG: Dashboard Counts - Machines: {m_count}, Parts: {p_count}, Blogs: {b_count}, Unread: {unread_e_count}, Total Enquiries: {total_e_count}")

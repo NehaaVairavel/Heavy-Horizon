@@ -71,15 +71,21 @@ export function MachineCard({ machine, onEnquiry }) {
         )}
       </div>
 
-      <div className="card-body" style={{ padding: '20px' }}>
+      <div className="card-body" style={{ padding: isSales ? '16px' : '20px' }}>
         <div className="card-header" style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '16px',
+          marginBottom: isSales ? '12px' : '16px',
           overflow: 'visible'
         }}>
-          <h3 className="card-title" style={{ marginBottom: 0, fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em', color: '#111827' }}>
+          <h3 className="card-title" style={{
+            marginBottom: 0,
+            fontSize: isSales ? '1.1rem' : '1.25rem',
+            fontWeight: '800',
+            letterSpacing: '-0.02em',
+            color: '#111827'
+          }}>
             {machine.title}
           </h3>
           <span className="machine-code">
@@ -90,25 +96,25 @@ export function MachineCard({ machine, onEnquiry }) {
         <div className="card-specs-grid" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '16px 24px',
-          marginBottom: '20px',
+          gap: isSales ? '12px 16px' : '16px 24px',
+          marginBottom: isSales ? '16px' : '20px',
           padding: '4px 0'
         }}>
           <div className="spec-item">
             <span className="label">MODEL</span>
-            <span className="value">{machine.model || 'N/A'}</span>
+            <span className="value" style={{ fontSize: isSales ? '14px' : '15px' }}>{machine.model || 'N/A'}</span>
           </div>
           <div className="spec-item">
             <span className="label">YEAR</span>
-            <span className="value">{machine.year || 'N/A'}</span>
+            <span className="value" style={{ fontSize: isSales ? '14px' : '15px' }}>{machine.year || 'N/A'}</span>
           </div>
           <div className="spec-item">
             <span className="label">HOURS</span>
-            <span className="value">{machine.hours?.toLocaleString() || 'N/A'}</span>
+            <span className="value" style={{ fontSize: isSales ? '14px' : '15px' }}>{machine.hours?.toLocaleString() || 'N/A'}</span>
           </div>
           <div className="spec-item">
             <span className="label">LOCATION</span>
-            <span className="value">{machine.location || 'Not specified'}</span>
+            <span className="value" style={{ fontSize: isSales ? '14px' : '15px' }}>{machine.location || 'Not specified'}</span>
           </div>
         </div>
 

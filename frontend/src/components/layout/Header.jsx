@@ -3,8 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
   { label: 'HOME', path: '/' },
-  { label: 'OUR SERVICES', path: '/services' },
-  { label: 'SALES', path: '/sales' },
+  { label: 'SALES', path: '/sales#machines-grid' },
+  { label: 'OUR SERVICES', path: '/services#machines-grid' },
   { label: 'USED PARTS', path: '/spare-parts' },
   { label: 'BLOGS', path: '/blogs' },
   { label: 'CONTACT US', path: '/contact' },

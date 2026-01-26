@@ -74,8 +74,10 @@ export default function AdminEnquiries() {
               <tr>
                 <th>Type</th>
                 <th>Name</th>
+                <th>Code</th>
                 <th>Item</th>
-                <th>Message</th>
+                <th>Category</th>
+                <th>Location</th>
                 <th>Mobile</th>
                 <th>Date</th>
                 <th>Actions</th>
@@ -90,8 +92,10 @@ export default function AdminEnquiries() {
                     </span>
                   </td>
                   <td>{enquiry.name || '-'}</td>
-                  <td>{enquiry.machine || enquiry.part || '-'}</td>
-                  <td>{enquiry.message ? enquiry.message.substring(0, 50) : '-'}</td>
+                  <td><code className="text-xs">{enquiry.machine_code || '-'}</code></td>
+                  <td>{enquiry.machine_name || enquiry.machine || enquiry.part || '-'}</td>
+                  <td>{enquiry.category || '-'}</td>
+                  <td>{enquiry.location || '-'}</td>
                   <td>{enquiry.mobile}</td>
                   <td>{formatDate(enquiry)}</td>
                   <td>

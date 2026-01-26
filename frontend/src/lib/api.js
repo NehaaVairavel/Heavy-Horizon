@@ -124,7 +124,7 @@ export const deleteBlog = async (id) => {
 
 // ---------------- ENQUIRIES ----------------
 export const submitEnquiry = async (enquiryData) => {
-  const response = await api.post('/api/enquiry', enquiryData);
+  const response = await api.post('/api/enquiries', enquiryData);
   return response.data;
 };
 

@@ -62,7 +62,15 @@ export default function Contact() {
 
       // Construct WhatsApp URL client-side
       const ADMIN_PHONE = '916379432565';
-      const text = encodeURIComponent(`Hello Heavy Horizon,\nMy Name: ${formData.name.trim()}\nI’m interested in your services.\nPhone: ${formData.mobile.trim()}\nSource: ${window.location.href}\n\nMessage: ${formData.message.trim()}`);
+      const whatsappMessage = `Hello Heavy Horizon,
+
+Name: ${formData.name.trim()}
+Purpose: General Enquiry
+Message: ${formData.message.trim()}
+
+Please contact me.`;
+
+      const text = encodeURIComponent(whatsappMessage);
       window.open(`https://wa.me/${ADMIN_PHONE}?text=${text}`, '_blank');
 
       setFormData({ name: '', message: '', mobile: '', email: '' });

@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { getMachines, addMachine, deleteMachine, updateMachine, uploadImages } from '@/lib/api';
 import { normalizeImages } from '@/lib/images';
 
+// Configure custom fonts
+const Font = Quill.import('formats/font');
+Font.whitelist = ['arial', 'roboto', 'times-new-roman', 'calibri', 'georgia'];
+Quill.register(Font, true);
+
+// Configure sizes
+const Size = Quill.import('formats/size');
+Size.whitelist = ['small', 'medium', 'large', 'huge'];
+Quill.register(Size, true);
+
 // Quill Modules Configuration for a Word-like experience
 const quillModules = {
   toolbar: [
-    [{ 'font': [] }, { 'size': [] }],
+    [{ 'font': Font.whitelist }, { 'size': Size.whitelist }],
     ['bold', 'italic', 'underline', 'strike'],
     [{ 'color': [] }, { 'background': [] }],
-    [{ 'script': 'sub' }, { 'script': 'super' }],
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
     [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    [{ 'indent': '-1' }, { 'indent': '+1' }],
     [{ 'align': [] }],
     ['clean'],
     ['undo', 'redo']
@@ -28,8 +37,8 @@ const quillFormats = [
   'font', 'size',
   'bold', 'italic', 'underline', 'strike',
   'color', 'background',
-  'script',
-  'list', 'bullet', 'indent',
+  'header',
+  'list', 'bullet',
   'align',
   'clean'
 ];

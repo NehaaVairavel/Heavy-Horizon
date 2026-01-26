@@ -69,6 +69,21 @@ export default function ServiceCategory() {
     };
 
     fetchMachines();
+
+    // Direct landing logic
+    if (window.location.hash === '#machines-grid') {
+      const machinesSection = document.getElementById('machines-grid');
+      if (machinesSection) {
+        setTimeout(() => {
+          const navbarHeight = 90;
+          const elementPosition = machinesSection.getBoundingClientRect().top + window.pageYOffset;
+          window.scrollTo({
+            top: elementPosition - navbarHeight,
+            behavior: 'smooth'
+          });
+        }, 100);
+      }
+    }
   }, [category, info]);
 
   const handleEnquiry = (machine) => {
@@ -129,7 +144,7 @@ export default function ServiceCategory() {
       </section>
 
       {/* Content */}
-      <section className="section">
+      <section className="section" id="machines-grid">
         <div className="container">
           {isLoading ? (
             <div className="loading">

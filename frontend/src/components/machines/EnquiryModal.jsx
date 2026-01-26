@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { submitEnquiry } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,6 +12,20 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
     email: '',
   });
   const [errors, setErrors] = useState({});
+
+  // Fix scroll issue and visibility
+  useEffect(() => {
+    if (isOpen) {
+      // Lock scroll
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = 'hidden';
+
+      // Return cleanup function
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
+    }
+  }, [isOpen]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -42,36 +56,66 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
     setIsSubmitting(true);
 
     try {
+      // 1. Prepare comprehensive data for DB
+      const machineName = `${machine?.title || ''} ${machine?.model || ''}`.trim();
+      const category = enquiryType === 'Rental' ? 'Our Services' : 'Sales';
+
       const enquiryData = {
-        type: enquiryType,
         name: formData.name.trim(),
-        machine: machine?.title,
-        condition: machine?.condition,
-        message: formData.message.trim(),
         mobile: formData.mobile.trim(),
+        message: formData.message.trim(),
         email: formData.email.trim() || undefined,
-        source: window.location.href
+        type: enquiryType, // internal type
+        category: category, // display category
+        machine_id: machine?._id,
+        machine_code: machine?.machineCode || 'N/A',
+        machine_name: machine?.title || 'N/A',
+        model: machine?.model || 'N/A',
+        location: machine?.location || 'Not specified',
+        source_page: window.location.pathname
       };
 
+      // 2. Save to Database FIRST
       await submitEnquiry(enquiryData);
 
       toast({
-        title: 'Enquiry Submitted!',
-        description: 'Redirecting you to WhatsApp...',
+        title: 'Enquiry Sent Successfully',
+        description: 'Record saved. Redirecting to WhatsApp...',
       });
 
+      // 3. Format WhatsApp Message (EXACT FORMAT)
       const ADMIN_PHONE = '916379432565';
-      const itemName = machine?.title || machine?.name || enquiryType || 'your services';
-      const text = encodeURIComponent(`Hello Heavy Horizon,\nMy Name: ${formData.name.trim()}\nI’m interested in ${itemName}.\nPhone: ${formData.mobile.trim()}\nSource: ${window.location.href}\n\nMessage: ${formData.message.trim()}`);
-      window.open(`https://wa.me/${ADMIN_PHONE}?text=${text}`, '_blank');
+      const whatsappMessage = `Hello Heavy Horizon,
 
-      setFormData({ name: '', message: '', mobile: '', email: '' });
-      setErrors({});
-      onClose();
+I am interested in the following machine:
+
+• Machine Code: ${machine?.machineCode || 'N/A'}
+• Machine Name: ${machine?.title || 'N/A'}
+• Model: ${machine?.model || 'N/A'}
+• Category: ${category}
+• Location: ${machine?.location || 'Not specified'}
+
+Customer Details:
+• Name: ${formData.name.trim()}
+• Mobile: ${formData.mobile.trim()}
+
+Please contact me with further details.`;
+
+      const text = encodeURIComponent(whatsappMessage);
+
+      // Delay slightly for toast visibility then redirect
+      setTimeout(() => {
+        window.open(`https://wa.me/${ADMIN_PHONE}?text=${text}`, '_blank');
+        setFormData({ name: '', message: '', mobile: '', email: '' });
+        setErrors({});
+        onClose();
+      }, 1000);
+
     } catch (error) {
+      console.error("Enquiry submission error:", error);
       toast({
         title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to submit enquiry',
+        description: error.response?.data?.error || error.message || 'Failed to submit enquiry',
         variant: 'destructive',
       });
     } finally {

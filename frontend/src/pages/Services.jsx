@@ -49,18 +49,21 @@ export default function Services() {
 
     fetchCounts();
 
-    const machinesSection = document.getElementById('machines-section');
-    if (machinesSection) {
-      const navbarHeight = 80;
-      const elementPosition = machinesSection.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - navbarHeight;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+    // Direct landing logic
+    if (window.location.hash === '#machines-grid') {
+      const machinesSection = document.getElementById('machines-grid');
+      if (machinesSection) {
+        setTimeout(() => {
+          const navbarHeight = 90;
+          const elementPosition = machinesSection.getBoundingClientRect().top + window.pageYOffset;
+          window.scrollTo({
+            top: elementPosition - navbarHeight,
+            behavior: 'smooth'
+          });
+        }, 100);
+      }
     }
-  }, []);
+  }, [location.hash]);
 
   return (
     <Layout>
@@ -77,7 +80,7 @@ export default function Services() {
       </section>
 
       {/* Categories */}
-      <section className="section" id="machines-section">
+      <section className="section" id="machines-grid">
         <div className="container">
           <div className="section-header">
             <span className="section-label">Choose Category</span>
@@ -93,7 +96,6 @@ export default function Services() {
                 path={category.path}
                 buttonText="View Services"
                 imageKey={category.imageKey}
-                count={counts[category.category]}
               />
             ))}
           </div>

@@ -19,21 +19,22 @@ export function EquipmentCard({ title, description, path, buttonText, imageKey, 
         {count !== undefined && (
           <div className="category-count" style={{
             position: 'absolute',
-            top: '12px',
-            right: '12px',
+            top: '16px', // Slightly more inset
+            right: '16px',
             background: 'var(--white)',
             color: 'var(--primary)',
-            fontWeight: '800',
-            fontSize: '1.25rem',
-            width: '42px',
-            height: '42px',
-            borderRadius: '12px',
+            fontWeight: '600', // Medium weight
+            fontSize: '0.85rem', // Subtle text
+            width: '28px', // Compact size
+            height: '28px',
+            borderRadius: '50%', // Circular
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
             zIndex: 2,
-            border: '1px solid rgba(217, 119, 6, 0.1)'
+            border: '1.5px solid var(--primary)',
+            opacity: 0.95
           }}>
             {count}
           </div>

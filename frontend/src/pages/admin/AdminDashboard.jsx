@@ -95,8 +95,8 @@ export default function AdminDashboard() {
             </svg>
           </div>
           <div className="stat-content">
-            <span className="stat-number">{hasError ? '--' : stats?.totalEnquiries ?? stats?.enquiries ?? 0}</span>
-            <span className="stat-label">Enquiries</span>
+            <span className="stat-number">{hasError ? '--' : stats?.totalEnquiries ?? 0}</span>
+            <span className="stat-label">Enquiries ({stats?.unreadEnquiries ?? 0} unread)</span>
           </div>
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
                   <tr key={enquiry.id || index}>
                     <td><span className={`badge badge-${enquiry.type?.toLowerCase()}`}>{enquiry.type}</span></td>
                     <td>{enquiry.name || '-'}</td>
-                    <td>{enquiry.machine || enquiry.part || 'N/A'}</td>
+                    <td>{enquiry.machine_name || enquiry.machine || enquiry.part || 'N/A'}</td>
                     <td>{enquiry.mobile}</td>
                     <td>{formattedDate}</td>
                   </tr>
