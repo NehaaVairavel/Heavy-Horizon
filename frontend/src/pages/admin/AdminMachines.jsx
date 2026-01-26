@@ -97,14 +97,13 @@ export default function AdminMachines() {
     }
 
     // Generate previews
-    const newPreviews = files.map(file => {
-      const url = URL.createObjectURL(file);
-      return url;
-    });
+    const newFilesWithUrls = files.map(file => ({
+      file,
+      url: URL.createObjectURL(file)
+    }));
 
-    // Update state
-    setSelectedFiles(prev => [...prev, ...files]);
-    setPreviewUrls(prev => [...prev, ...newPreviews]);
+    setSelectedFiles(prev => [...prev, ...newFilesWithUrls]);
+    setPreviewUrls(prev => [...prev, ...newFilesWithUrls.map(f => f.url)]);
 
     // Clear error if any
     setMessage({ type: '', text: '' });
@@ -113,18 +112,15 @@ export default function AdminMachines() {
   const removeImage = (index) => {
     const urlToRemove = previewUrls[index];
 
-    // If it's a blob URL, revoke it
-    if (urlToRemove && urlToRemove.startsWith('blob:')) {
+    if (urlToRemove.startsWith('blob:')) {
+      // Remove from tracked selectedFiles
+      setSelectedFiles(prev => prev.filter(f => f.url !== urlToRemove));
       URL.revokeObjectURL(urlToRemove);
-
-      // Also remove from selectedFiles by finding its index among blob URLs
-      const blobIndex = previewUrls.slice(0, index).filter(u => u.startsWith('blob:')).length;
-      setSelectedFiles(prev => prev.filter((_, i) => i !== blobIndex));
     } else {
-      // It's an existing image URL from the server
+      // Remove from existing images in formData
       setFormData(prev => ({
         ...prev,
-        images: prev.images.filter(u => u !== urlToRemove)
+        images: (prev.images || []).filter(u => u !== urlToRemove)
       }));
     }
 
@@ -158,32 +154,34 @@ export default function AdminMachines() {
       // 1. Upload new files if any
       if (selectedFiles.length > 0) {
         setUploading(true);
-        const uploadRes = await uploadImages(selectedFiles);
+        const filesToUpload = selectedFiles.map(f => f.file);
+        const uploadRes = await uploadImages(filesToUpload);
         uploadedImages = uploadRes.images || [];
         setUploading(false);
       }
 
-      // 2. Prepare payload
-      // Combine existing images (if editing and not removed) with newly uploaded ones
+      // 2. Prepare clean payload
       const finalImages = [
-        ...(isEditing ? formData.images : []),
+        ...(formData.images || []),
         ...uploadedImages
       ];
 
-      const payload = {
-        ...formData,
-        condition: formData.condition.trim(),
-        location: (formData.location || '').trim(),
-        images: finalImages,
-        year: Number(formData.year) || 0,
-        hours: Number(formData.hours) || 0,
-      };
+      // Remove immutable fields for update
+      const cleanPayload = { ...formData };
+      delete cleanPayload._id;
+      delete cleanPayload.machineCode;
+
+      cleanPayload.images = finalImages;
+      cleanPayload.condition = (cleanPayload.condition || '').trim();
+      cleanPayload.location = (cleanPayload.location || '').trim();
+      cleanPayload.year = Number(cleanPayload.year);
+      cleanPayload.hours = Number(cleanPayload.hours);
 
       if (isEditing) {
-        await updateMachine(editId, payload);
+        await updateMachine(editId, cleanPayload);
         setMessage({ type: 'success', text: 'Machine updated successfully' });
       } else {
-        await addMachine(payload);
+        await addMachine(cleanPayload);
         setMessage({ type: 'success', text: 'Machine added successfully' });
       }
 
@@ -196,17 +194,15 @@ export default function AdminMachines() {
         type: 'error',
         text: error.response?.data?.error || error.message || "Failed to save machine"
       });
-      setUploading(false);
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   };
 
   const handleReset = () => {
-    // Cleanup blob previews only
-    previewUrls.forEach(url => {
-      if (url.startsWith('blob:')) URL.revokeObjectURL(url);
-    });
+    // Cleanup tracked blob previews
+    selectedFiles.forEach(f => URL.revokeObjectURL(f.url));
 
     setFormData(emptyMachine);
     setSelectedFiles([]);

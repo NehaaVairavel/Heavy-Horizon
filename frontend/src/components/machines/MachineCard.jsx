@@ -71,24 +71,20 @@ export function MachineCard({ machine, onEnquiry }) {
         )}
       </div>
 
-      <div className="card-body">
-        <div className="card-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 className="card-title" style={{ marginBottom: 0, fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em' }}>{machine.title}</h3>
-          {machine.machineCode && (
-            <span className="machine-code-badge" style={{
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              padding: '6px 12px',
-              backgroundColor: '#1f2937', // Dark background
-              border: '1.5px solid var(--primary)', // Orange border
-              color: 'var(--primary)', // Orange text
-              borderRadius: '6px',
-              fontFamily: 'var(--font-heading)',
-              letterSpacing: '0.05em'
-            }}>
-              {machine.machineCode}
-            </span>
-          )}
+      <div className="card-body" style={{ padding: '20px' }}>
+        <div className="card-header" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '16px',
+          overflow: 'visible'
+        }}>
+          <h3 className="card-title" style={{ marginBottom: 0, fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em', color: '#111827' }}>
+            {machine.title}
+          </h3>
+          <span className="machine-code">
+            {machine.machineCode || 'N/A'}
+          </span>
         </div>
 
         <div className="card-specs-grid" style={{
@@ -98,32 +94,80 @@ export function MachineCard({ machine, onEnquiry }) {
           marginBottom: '20px',
           padding: '4px 0'
         }}>
-          <div className="card-spec-item" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span className="card-spec-label" style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>MODEL</span>
-            <span className="card-spec-value" style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--foreground)' }}>{machine.model || 'N/A'}</span>
+          <div className="spec-item">
+            <span className="label">MODEL</span>
+            <span className="value">{machine.model || 'N/A'}</span>
           </div>
-          <div className="card-spec-item" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span className="card-spec-label" style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>YEAR</span>
-            <span className="card-spec-value" style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--foreground)' }}>{machine.year || 'N/A'}</span>
+          <div className="spec-item">
+            <span className="label">YEAR</span>
+            <span className="value">{machine.year || 'N/A'}</span>
           </div>
-          <div className="card-spec-item" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span className="card-spec-label" style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>HOURS</span>
-            <span className="card-spec-value" style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--foreground)' }}>{machine.hours?.toLocaleString() || 'N/A'}</span>
+          <div className="spec-item">
+            <span className="label">HOURS</span>
+            <span className="value">{machine.hours?.toLocaleString() || 'N/A'}</span>
           </div>
-          <div className="card-spec-item" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span className="card-spec-label" style={{ fontSize: '0.65rem', fontWeight: '600', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>LOCATION</span>
-            <span className="card-spec-value" style={{
-              fontSize: '0.9rem',
-              fontWeight: '600',
-              color: 'var(--muted-foreground)',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }} title={machine.location}>
-              {machine.location || 'Not specified'}
-            </span>
+          <div className="spec-item">
+            <span className="label">LOCATION</span>
+            <span className="value">{machine.location || 'Not specified'}</span>
           </div>
         </div>
+
+        {/* Local styles for the card to ensure high priority and exact match */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          .machine-code {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            background-color: #111827; /* dark charcoal */
+            color: #f97316; /* brand orange */
+            border-radius: 6px;
+            border: 1px solid #f97316;
+            white-space: nowrap;
+            opacity: 1;
+            visibility: visible;
+          }
+
+          .spec-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+
+          .spec-item .label {
+            font-size: 12px;
+            color: #6b7280; /* muted gray */
+            text-transform: uppercase;
+          }
+
+          .spec-item .value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827; /* dark text */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          @media (max-width: 768px) {
+            .machine-code {
+              font-size: 12px;
+              padding: 4px 10px;
+            }
+
+            .spec-item {
+              display: block;
+            }
+            
+            .card-header {
+              flex-wrap: wrap;
+              gap: 8px;
+            }
+          }
+        `}} />
 
         <div className="card-actions">
           <button

@@ -190,11 +190,30 @@ def add_machine():
 def update_delete_machine(id):
     if request.method == "PUT":
         data = request.json
-        # Prevent machineCode from being updated
+        
+        # Fetch current machine to reconcile images
+        existing_machine = machines.find_one({"_id": ObjectId(id)})
+        if not existing_machine:
+            return jsonify({"error": "Machine not found"}), 404
+            
+        # Reconcile images (delete from Cloudinary if removed from list)
+        old_images = existing_machine.get("images", [])
+        new_images = data.get("images", [])
+        removed_images = [img for img in old_images if img not in new_images]
+        if removed_images:
+            delete_cloudinary_images(removed_images)
+            
+        # Clean up the data object
+        if "_id" in data:
+            del data["_id"]
         if "machineCode" in data:
             del data["machineCode"]
+            
         machines.update_one({"_id": ObjectId(id)}, {"$set": data})
-        return jsonify({"message": "Machine updated"})
+        
+        updated = machines.find_one({"_id": ObjectId(id)})
+        updated["_id"] = str(updated["_id"])
+        return jsonify(updated)
     
     # DELETE logic with Cloudinary cleanup
     machine = machines.find_one({"_id": ObjectId(id)})
