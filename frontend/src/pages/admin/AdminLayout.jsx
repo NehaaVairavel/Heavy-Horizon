@@ -5,9 +5,22 @@ import { getDashboardCounts } from '@/lib/api';
 import '@/styles/admin.css';
 
 export default function AdminLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 992);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 992) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { token, logout } = useAuth();
   const [counts, setCounts] = useState({ unreadEnquiries: 0, totalEnquiries: 0 });
@@ -55,6 +68,14 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout">
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="admin-sidebar-overlay" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'collapsed'}`}>
         <div className="admin-sidebar-header">
@@ -80,6 +101,9 @@ export default function AdminLayout() {
               key={item.path}
               to={item.path}
               className={`admin-nav-item ${isActive(item.path) ? 'active' : ''}`}
+              onClick={() => {
+                if (window.innerWidth < 992) setSidebarOpen(false);
+              }}
             >
               <span className="nav-icon">{getIcon(item.icon)}</span>
               {sidebarOpen && (

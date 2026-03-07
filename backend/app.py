@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
-import bcrypt, jwt, os
+import bcrypt, jwt, os, re
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from bson import ObjectId
@@ -314,7 +314,19 @@ def enquiry():
     data["status"] = "new"
     
     enquiries.insert_one(data)
-    return jsonify({"message": "Enquiry submitted successfully"})
+    
+    # 2. Generate WhatsApp Link (Admin: 916379432565)
+    phone = "916379432565"
+    machine_title = data.get("machine", "N/A")
+    msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\nInterested in: {machine_title}\n\n{data.get('message', '')}"
+    
+    import urllib.parse
+    whatsapp_url = f"https://wa.me/{phone}?text={urllib.parse.quote(msg)}"
+    
+    return jsonify({
+        "message": "Enquiry submitted successfully",
+        "whatsapp": whatsapp_url
+    })
 
 @app.route("/admin/enquiries", methods=["GET"])
 @token_required

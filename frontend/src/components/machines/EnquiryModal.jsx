@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { submitEnquiry } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,28 +13,15 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
   });
   const [errors, setErrors] = useState({});
 
-  // Fix scroll issue and visibility
-  useEffect(() => {
-    if (isOpen) {
-      // 1. Scroll to top (STRICT ORDER)
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // 2. Lock scroll
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = 'hidden';
-
-      // Return cleanup function
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }
-  }, [isOpen]);
-
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Full name is required';
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Please enter your requirement';
     }
 
     if (!formData.mobile.trim()) {
@@ -59,71 +46,32 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
     setIsSubmitting(true);
 
     try {
-      // 1. Prepare comprehensive data for DB
-      const category = enquiryType === 'Rental' ? 'Our Services' : (enquiryType === 'Part' ? 'Spare Parts' : 'Sales');
-
       const enquiryData = {
+        type: enquiryType,
         name: formData.name.trim(),
-        mobile: formData.mobile.trim(),
+        machine: machine?.title,
+        condition: machine?.condition,
         message: formData.message.trim(),
+        mobile: formData.mobile.trim(),
         email: formData.email.trim() || undefined,
-        type: enquiryType, // internal type
-        category: category, // display category
-        machine_id: machine?._id,
-        machine_code: machine?.machineCode || machine?.code || 'N/A',
-        machine_name: machine?.title || machine?.name || 'N/A',
-        machine_brand: machine?.title || machine?.name || 'N/A', // storing brand
-        machine_category: machine?.category || (enquiryType === 'Part' ? 'Spare Part' : 'N/A'),
-        model: machine?.model || 'N/A',
-        location: machine?.location || 'Not specified',
-        source_page: window.location.pathname
       };
 
-      // 2. Save to Database FIRST (MANDATORY)
-      await submitEnquiry(enquiryData);
+      const response = await submitEnquiry(enquiryData);
 
       toast({
-        title: 'Enquiry Sent Successfully',
-        description: 'Record saved. Redirecting to WhatsApp...',
+        title: 'Enquiry Submitted!',
+        description: 'Redirecting you to WhatsApp...',
       });
 
-      // 3. Format WhatsApp Message (EXACT FORMAT)
-      const ADMIN_PHONE = '916379432565';
-      const name = formData.name.trim();
-      const mobile = formData.mobile.trim();
-      const brand = machine?.title || machine?.name || 'N/A';
-      const machineCategory = machine?.category || (enquiryType === 'Part' ? 'Spare Part' : 'N/A');
-      const code = machine?.machineCode || machine?.code || 'N/A';
+      window.open(response.whatsapp, '_blank');
 
-      const whatsappMessage = `Hello Heavy Horizon,
-
-Name: ${name}
-Mobile: ${mobile}
-
-I am interested in the following machine:
-• Brand: ${brand}
-• Category: ${machineCategory}
-• Machine Code: ${code}
-
-Please contact me with further details.`;
-
-      const text = encodeURIComponent(whatsappMessage);
-
-      // Delay slightly for toast visibility then redirect
-      setTimeout(() => {
-        // Open WhatsApp - official click-to-chat format
-        window.open(`https://wa.me/${ADMIN_PHONE}?text=${text}`, '_blank');
-
-        setFormData({ name: '', message: '', mobile: '', email: '' });
-        setErrors({});
-        onClose();
-      }, 1000);
-
+      setFormData({ name: '', message: '', mobile: '', email: '' });
+      setErrors({});
+      onClose();
     } catch (error) {
-      console.error("Enquiry submission error:", error);
       toast({
         title: 'Error',
-        description: 'Something went wrong. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to submit enquiry',
         variant: 'destructive',
       });
     } finally {
@@ -135,7 +83,7 @@ Please contact me with further details.`;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div>
             <h2 className="modal-title">Send Enquiry</h2>
@@ -162,9 +110,22 @@ Please contact me with further details.`;
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                required
               />
               {errors.name && <p className="form-error">{errors.name}</p>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Requirement / Query <span className="required">*</span>
+              </label>
+              <textarea
+                className={`form-textarea ${errors.message ? 'error' : ''}`}
+                placeholder="Describe your requirement..."
+                value={formData.message}
+                onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+                rows={4}
+              />
+              {errors.message && <p className="form-error">{errors.message}</p>}
             </div>
 
             <div className="form-group">
@@ -178,23 +139,8 @@ Please contact me with further details.`;
                 value={formData.mobile}
                 onChange={(e) => setFormData((prev) => ({ ...prev, mobile: e.target.value }))}
                 maxLength={10}
-                required
               />
               {errors.mobile && <p className="form-error">{errors.mobile}</p>}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">
-                Requirement / Query (Optional)
-              </label>
-              <textarea
-                className={`form-textarea ${errors.message ? 'error' : ''}`}
-                placeholder="Describe your requirement..."
-                value={formData.message}
-                onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
-                rows={4}
-              />
-              {errors.message && <p className="form-error">{errors.message}</p>}
             </div>
 
             <div className="form-group">
@@ -209,7 +155,7 @@ Please contact me with further details.`;
               {errors.email && <p className="form-error">{errors.email}</p>}
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block" style={{ borderRadius: '50px', padding: '16px', marginTop: '10px' }} disabled={isSubmitting}>
+            <button type="submit" className="btn btn-primary btn-submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <span className="loading-spinner" style={{ width: 16, height: 16, borderWidth: 2 }}></span>
