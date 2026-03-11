@@ -68,6 +68,24 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout">
+      {/* Mobile Header */}
+      <header className="admin-mobile-header">
+        <div className="admin-mobile-logo">
+          <h2>HH Admin</h2>
+        </div>
+        <button 
+          className="admin-mobile-toggle"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Open menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </header>
+
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 

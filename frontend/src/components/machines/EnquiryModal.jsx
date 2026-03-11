@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { submitEnquiry } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,6 +13,18 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
     email: '',
   });
   const [errors, setErrors] = useState({});
+
+  // Prevent background scrolling when the modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -81,7 +94,7 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
@@ -173,6 +186,7 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
