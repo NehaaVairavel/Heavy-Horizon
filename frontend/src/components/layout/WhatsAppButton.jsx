@@ -1,6 +1,6 @@
 export function WhatsAppButton() {
   const phoneNumber = '916379432565';
-  const message = 'Hi, I am interested in your construction equipment services. Please provide more details.';
+  const message = 'Hello Heavy Horizon,\n\nI would like to enquire about your construction equipment.\n\nPlease provide more details.';
   
   const handleClick = () => {
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;

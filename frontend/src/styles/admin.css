@@ -121,6 +121,8 @@
   display: flex;
   min-height: 100vh;
   background: #f8f7f4;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Mobile Header */
@@ -326,6 +328,7 @@
   margin-left: 250px;
   transition: margin-left 0.3s ease;
   min-height: 100vh;
+  min-width: 0; /* CRITICAL: Prevents flex child from expanding past screen width */
 }
 
 .admin-sidebar.collapsed~.admin-main {
@@ -334,6 +337,9 @@
 
 .admin-page {
   padding: 30px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .admin-page-header {
@@ -498,6 +504,10 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-table {
@@ -842,6 +852,9 @@
 
   .admin-page {
     padding: 20px 15px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .form-row {
@@ -861,35 +874,128 @@
 
 @media (max-width: 768px) {
   .admin-stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Allows 2 cols on tablet, 1 on small mobile */
+    gap: 12px;
   }
 
   .admin-page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+  }
+
+  .admin-page {
+    padding: 16px 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .admin-section-header {
     flex-direction: row; /* Keep header items aligned on small screens */
   }
 
+  /* .admin-table-container rules are now global, but keep this for specific mobile adjustments if needed */
   .admin-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    border-radius: 8px; /* Slightly tighter corners on mobile */
+    background: transparent;
+    box-shadow: none;
+    overflow: visible; /* Prevent clipping of card shadows */
   }
 
-  .admin-table th, 
+  /* --- Mobile Card Tables --- */
+  .admin-table, 
+  .admin-table tbody, 
+  .admin-table tr, 
   .admin-table td {
+    display: block;
+    width: 100%;
+  }
+
+  /* Hide table headers on mobile (but keep in DOM for accessibility) */
+  .admin-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  /* Style rows as cards */
+  .admin-table tr {
+    background: white;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .admin-table tr:hover {
+    background: white; /* Disable hover effect for mobile cards */
+  }
+
+  /* Style cells as rows within the card */
+  .admin-table td {
+    position: relative;
+    padding: 12px 16px;
+    padding-left: 45%; /* Make room for the pseudo-element label */
+    text-align: right;
+    border-bottom: 1px solid #f3f4f6;
+    min-height: 48px; /* Ensure fat touch targets */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    white-space: normal; /* Allow long values to text-wrap */
+  }
+
+  .admin-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Inject labels */
+  .admin-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40%;
+    padding-right: 10px;
     white-space: nowrap;
-    min-width: 120px;
+    text-align: left;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Special handling for images inside cards */
+  .admin-table td[data-label="Image"] {
+    justify-content: flex-end;
+  }
+
+  .admin-table td[data-label="Image"] img {
+    margin-left: auto;
+  }
+
+  /* Special handling for Actions */
+  .admin-table td.actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: #fdfdfd;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  /* Adjust badge sizing inside cards */
+  .admin-table td .badge {
+    margin: 0;
   }
 
   .admin-table .message-cell {
-    white-space: normal;
-    min-width: 200px;
+    min-width: unset;
   }
 
   .admin-form-container {

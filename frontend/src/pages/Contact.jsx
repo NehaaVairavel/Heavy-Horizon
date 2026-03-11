@@ -70,17 +70,7 @@ export default function Contact() {
       const name = formData.name.trim();
       const mobile = formData.mobile.trim();
 
-      const whatsappMessage = `Hello Heavy Horizon,
-
-Name: ${name}
-Mobile: ${mobile}
-
-I am interested in the following machine:
-• Brand: General Enquiry
-• Category: N/A
-• Machine Code: N/A
-
-Please contact me with further details.`;
+      const whatsappMessage = `Hello Heavy Horizon,\n\nI would like to enquire about your construction equipment.\n\nPlease provide more details.`;
 
       const text = encodeURIComponent(whatsappMessage);
 

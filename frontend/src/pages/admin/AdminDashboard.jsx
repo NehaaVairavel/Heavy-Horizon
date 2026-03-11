@@ -124,11 +124,11 @@ export default function AdminDashboard() {
 
                 return (
                   <tr key={enquiry.id || index}>
-                    <td><span className={`badge badge-${enquiry.type?.toLowerCase()}`}>{enquiry.type}</span></td>
-                    <td>{enquiry.name || '-'}</td>
-                    <td>{enquiry.machine_name || enquiry.machine || enquiry.part || 'N/A'}</td>
-                    <td>{enquiry.mobile}</td>
-                    <td>{formattedDate}</td>
+                    <td data-label="Type"><span className={`badge badge-${enquiry.type?.toLowerCase()}`}>{enquiry.type}</span></td>
+                    <td data-label="Name">{enquiry.name || '-'}</td>
+                    <td data-label="Item">{enquiry.machine_name || enquiry.machine || enquiry.part || 'N/A'}</td>
+                    <td data-label="Mobile">{enquiry.mobile}</td>
+                    <td data-label="Date">{formattedDate}</td>
                   </tr>
                 );
               })}

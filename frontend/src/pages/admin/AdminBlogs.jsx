@@ -184,9 +184,9 @@ export default function AdminBlogs() {
             <tbody>
               {blogs.map(blog => (
                 <tr key={blog._id}>
-                  <td>{blog.title}</td>
-                  <td>{new Date(blog._id.substring(0, 8) ? parseInt(blog._id.substring(0, 8), 16) * 1000 : Date.now()).toLocaleDateString()}</td>
-                  <td>
+                  <td data-label="Title">{blog.title}</td>
+                  <td data-label="Date">{new Date(blog._id.substring(0, 8) ? parseInt(blog._id.substring(0, 8), 16) * 1000 : Date.now()).toLocaleDateString()}</td>
+                  <td data-label="Actions" className="actions-cell">
                     <button className="btn-icon delete" onClick={() => handleDelete(blog._id)}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3 6 5 6 21 6" />

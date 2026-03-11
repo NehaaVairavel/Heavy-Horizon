@@ -1,6 +1,10 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { EquipmentCard } from '@/components/EquipmentCard';
+import { MachineCard } from '@/components/machines/MachineCard';
+import { EnquiryModal } from '@/components/machines/EnquiryModal';
+import { getMachines } from '@/lib/api';
 import heroImage from '@/assets/hero-construction.jpg';
 
 const equipmentCategories = [
@@ -64,6 +68,35 @@ const features = [
 ];
 
 export default function Index() {
+  const [recentMachines, setRecentMachines] = useState([]);
+  const [loadingMachines, setLoadingMachines] = useState(true);
+  const [selectedMachine, setSelectedMachine] = useState(null);
+  const [isEnquiryModalOpen, setIsEnquiryModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchRecentMachines();
+  }, []);
+
+  const fetchRecentMachines = async () => {
+    try {
+      setLoadingMachines(true);
+      const data = await getMachines();
+      // Assuming data comes sorted from backend or we just take the latest 4 based on array reverse
+      // Typically newer entities are at the end, so reverse and slice
+      const latest = [...(data || [])].reverse().slice(0, 4);
+      setRecentMachines(latest);
+    } catch (error) {
+      console.error("Failed to fetch machines:", error);
+    } finally {
+      setLoadingMachines(false);
+    }
+  };
+
+  const handleEnquiry = (machine) => {
+    setSelectedMachine(machine);
+    setIsEnquiryModalOpen(true);
+  };
+
   return (
     <Layout>
       {/* 1. Hero Section - Dark Theme as per Image 0 */}
@@ -168,6 +201,59 @@ export default function Index() {
         </div>
       </section>
 
+      {/* 2.5 Trust Section - Dark Theme */}
+      <section className="section section-dark" style={{ padding: '60px 0' }}>
+        <div className="container">
+          <div className="trust-grid">
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+              </div>
+              <div className="trust-number">500+</div>
+              <div className="trust-label">Machines Delivered</div>
+            </div>
+            
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div className="trust-number">120+</div>
+              <div className="trust-label">Construction Clients</div>
+            </div>
+            
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </div>
+              <div className="trust-number">10+</div>
+              <div className="trust-label">Years Experience</div>
+            </div>
+            
+            <div className="trust-item">
+              <div className="trust-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  <path d="M14.05 2a9 9 0 0 1 8 7.94"></path>
+                  <path d="M14.05 6A5 5 0 0 1 18 10"></path>
+                </svg>
+              </div>
+              <div className="trust-number">24/7</div>
+              <div className="trust-label">Support Available</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3. Our Equipment Section - White Theme as per Image 2 */}
       <section className="section section-muted">
         <div className="container">
@@ -187,6 +273,57 @@ export default function Index() {
                 imageKey={item.imageKey}
               />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3.5. Recently Added Machines Section - Light Gray Theme */}
+      <section className="section" style={{ backgroundColor: '#f9fafb' }}>
+        <div className="container">
+          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
+            <div>
+              <span className="section-label" style={{ marginBottom: '12px', display: 'inline-block' }}>NEW ARRIVALS</span>
+              <h2 className="section-title" style={{ fontSize: '2.5rem', margin: 0 }}>
+                RECENTLY ADDED <span>MACHINES</span>
+              </h2>
+            </div>
+            <Link to="/sales" className="btn btn-outline-dark" style={{ display: 'none' }}>
+              VIEW ALL
+            </Link>
+          </div>
+
+          {loadingMachines ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+              Loading recently added machines...
+            </div>
+          ) : recentMachines.length > 0 ? (
+            <div className="machines-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '24px',
+              marginBottom: '40px'
+            }}>
+              {recentMachines.map(machine => (
+                <MachineCard
+                  key={machine._id}
+                  machine={machine}
+                  onEnquiry={handleEnquiry}
+                />
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+              No machines available at the moment.
+            </div>
+          )}
+
+          <div style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
+            <Link to="/sales" className="btn btn-outline" style={{ display: 'inline-flex', padding: '14px 32px' }}>
+              VIEW ALL MACHINES
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="18" height="18" style={{ marginLeft: '8px' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>
@@ -225,6 +362,17 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Enquiry Modal */}
+      {isEnquiryModalOpen && (
+        <EnquiryModal
+          machine={selectedMachine}
+          onClose={() => {
+            setIsEnquiryModalOpen(false);
+            setSelectedMachine(null);
+          }}
+        />
+      )}
     </Layout>
   );
 }

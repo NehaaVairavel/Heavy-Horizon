@@ -169,17 +169,17 @@ export default function AdminParts() {
 
                 return (
                   <tr key={part._id}>
-                    <td>
+                    <td data-label="Image">
                       <img
                         src={imageUrl}
                         alt={part.name}
                         style={{ width: '40px', height: '30px', objectFit: 'cover', borderRadius: '4px' }}
                       />
                     </td>
-                    <td>{part.name}</td>
-                    <td>{part.compatibility}</td>
-                    <td>{part.condition}</td>
-                    <td>
+                    <td data-label="Name">{part.name}</td>
+                    <td data-label="Compatibility">{part.compatibility}</td>
+                    <td data-label="Condition">{part.condition}</td>
+                    <td data-label="Actions" className="actions-cell">
                       <button className="btn-icon delete" onClick={() => handleDelete(part._id)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <polyline points="3 6 5 6 21 6" />

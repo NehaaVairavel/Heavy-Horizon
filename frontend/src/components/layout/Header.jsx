@@ -33,25 +33,7 @@ export function Header() {
     return location.pathname.startsWith(path);
   };
 
-  // Get current page name for header breadcrumb
-  const getCurrentPageName = () => {
-    const path = location.pathname;
-    if (path === '/') return null;
 
-    const matchedItem = navItems.find(item => item.path !== '/' && path.startsWith(item.path));
-    if (matchedItem) return matchedItem.label;
-
-    // Fallback for subpaths like categories or detail pages if not matched above
-    if (path.includes('/services')) return 'OUR SERVICES';
-    if (path.includes('/sales')) return 'SALES';
-    if (path.includes('/spare-parts')) return 'USED PARTS';
-    if (path.includes('/blogs')) return 'BLOGS';
-    if (path.includes('/contact')) return 'CONTACT US';
-
-    return null;
-  };
-
-  const pageName = getCurrentPageName();
 
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
@@ -65,11 +47,7 @@ export function Header() {
               HEAVY <span>HORIZON</span>
             </span>
           </Link>
-          {pageName && (
-            <div className="header-breadcrumb">
-              / <span className="current">{pageName}</span>
-            </div>
-          )}
+
         </div>
 
         <nav className="nav-menu">

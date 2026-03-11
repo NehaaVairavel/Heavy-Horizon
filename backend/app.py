@@ -315,11 +315,22 @@ def enquiry():
     
     enquiries.insert_one(data)
     
-    # 2. Generate WhatsApp Link (Admin: 916379432565)
+    # 2. Generate WhatsApp Link (Unified Number: 6379432565)
     phone = "916379432565"
-    machine_title = data.get("machine", "N/A")
-    msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\nInterested in: {machine_title}\n\n{data.get('message', '')}"
     
+    # Extract Machine details from payload, fallback to empty/NA if general enquiry
+    req_brand = data.get("machine_brand", "N/A")
+    req_category = data.get("machine_category", "N/A")
+    req_code = data.get("machine_code", "N/A")
+    machine_title = data.get("machine", "N/A")
+
+    if machine_title != "N/A" and machine_title != "":
+        # Specific Machine Enquiry
+        msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\I am interested in the following machine:\n\nBrand: {req_brand}\nCategory: {req_category}\nMachine Code: {req_code}\n\nPlease contact me with further details."
+    else:
+        # General Enquiry fallback
+        msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\nI would like to enquire about your construction equipment.\n\nPlease contact me with further details."
+        
     import urllib.parse
     whatsapp_url = f"https://wa.me/{phone}?text={urllib.parse.quote(msg)}"
     

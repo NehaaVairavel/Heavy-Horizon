@@ -922,6 +922,63 @@ textarea {
   }
 }
 
+/* Trust Section */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  text-align: center;
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.trust-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(224, 122, 24, 0.1); 
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.trust-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--white);
+  font-family: var(--font-heading);
+  line-height: 1;
+}
+
+.trust-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 1024px) {
+  .trust-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .trust-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
 /* Footer */
 .footer {
   background: #141414;

@@ -77,6 +77,7 @@ export default function AdminEnquiries() {
                 <th>Code</th>
                 <th>Item</th>
                 <th>Category</th>
+                <th>Message</th>
                 <th>Location</th>
                 <th>Mobile</th>
                 <th>Date</th>
@@ -86,19 +87,24 @@ export default function AdminEnquiries() {
             <tbody>
               {filteredEnquiries.map((enquiry, idx) => (
                 <tr key={enquiry._id || idx}>
-                  <td>
+                  <td data-label="Type">
                     <span className={`badge badge-${(enquiry.type || 'contact').toLowerCase()}`}>
                       {enquiry.type || 'Contact'}
                     </span>
                   </td>
-                  <td>{enquiry.name || '-'}</td>
-                  <td><code className="text-xs">{enquiry.machine_code || '-'}</code></td>
-                  <td>{enquiry.machine_name || enquiry.machine || enquiry.part || '-'}</td>
-                  <td>{enquiry.category || '-'}</td>
-                  <td>{enquiry.location || '-'}</td>
-                  <td>{enquiry.mobile}</td>
-                  <td>{formatDate(enquiry)}</td>
-                  <td>
+                  <td data-label="Name">{enquiry.name || '-'}</td>
+                  <td data-label="Code"><code className="text-xs">{enquiry.machine_code || '-'}</code></td>
+                  <td data-label="Item">{enquiry.machine_name || enquiry.machine || enquiry.part || '-'}</td>
+                  <td data-label="Category">{enquiry.category || '-'}</td>
+                  <td data-label="Message">
+                    <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={enquiry.message}>
+                      {enquiry.message || '-'}
+                    </div>
+                  </td>
+                  <td data-label="Location">{enquiry.location || '-'}</td>
+                  <td data-label="Mobile">{enquiry.mobile}</td>
+                  <td data-label="Date">{formatDate(enquiry)}</td>
+                  <td data-label="Actions" className="actions-cell">
                     <button className="btn-icon whatsapp" onClick={() => openWhatsApp(enquiry.mobile)} title="Chat on WhatsApp">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />

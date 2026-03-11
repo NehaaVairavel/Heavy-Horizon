@@ -59,14 +59,19 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
     setIsSubmitting(true);
 
     try {
+      // Simulate extra processing time
+      await new Promise(resolve => setTimeout(resolve, 800));
+
       const enquiryData = {
         type: enquiryType,
         name: formData.name.trim(),
-        machine: machine?.title,
-        condition: machine?.condition,
         message: formData.message.trim(),
         mobile: formData.mobile.trim(),
         email: formData.email.trim() || undefined,
+        machine: machine ? machine.title : 'General Enquiry',
+        machine_brand: machine?.brand || 'N/A',
+        machine_category: machine?.category || 'N/A',
+        machine_code: machine?.machineCode || 'N/A'
       };
 
       const response = await submitEnquiry(enquiryData);

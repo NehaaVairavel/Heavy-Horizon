@@ -240,8 +240,18 @@ export default function MachineDetail() {
                                     className="btn btn-block"
                                     style={{ background: '#25D366', color: 'white', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
                                     onClick={() => {
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        setIsModalOpen(true);
+                                        const adminPhone = '916379432565';
+                                        const msg = `Hello Heavy Horizon,
+
+I would like to know more about this machine:
+
+Machine: ${machine.title}
+Category: ${machine.category || 'N/A'}
+Machine Code: ${machine.machineCode || 'N/A'}
+
+Please provide more details.`;
+                                        const url = `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
+                                        window.open(url, '_blank');
                                     }}
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
