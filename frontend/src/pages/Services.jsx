@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { EquipmentCard } from '@/components/EquipmentCard';
 import { getMachines } from '@/lib/api';
+import servicesHeroImg from '@/assets/services-hero.png';
+import jcbPremiumImg from '@/assets/jcb-backhoe-premium.png';
+import hitachiPremiumImg from '@/assets/hitachi-excavator-premium.png';
 
 const serviceCategories = [
   {
@@ -9,6 +13,7 @@ const serviceCategories = [
     category: 'Backhoe Loader',
     path: '/services/category/backhoe-loaders#machines-grid',
     imageKey: 'backhoe-loaders',
+    customImage: jcbPremiumImg,
     description: 'Powerful and versatile machines ideal for excavation, loading, trenching, and earthwork operations.',
   },
   {
@@ -16,6 +21,7 @@ const serviceCategories = [
     category: 'Excavator',
     path: '/services/category/excavators#machines-grid',
     imageKey: 'excavators',
+    customImage: hitachiPremiumImg,
     description: 'Heavy-duty excavators suitable for large-scale digging, demolition, and infrastructure projects.',
   },
   {
@@ -34,7 +40,6 @@ export default function Services() {
     const fetchCounts = async () => {
       try {
         const data = await getMachines();
-        // Filter for Rental/Services purpose
         const rentalMachines = data.filter(m => m.purpose === 'Rental' || m.type === 'Rental');
 
         const newCounts = {};
@@ -49,42 +54,83 @@ export default function Services() {
 
     fetchCounts();
 
-    // Direct landing logic
     if (window.location.hash === '#machines-grid') {
       const machinesSection = document.getElementById('machines-grid');
       if (machinesSection) {
         setTimeout(() => {
           const navbarHeight = 90;
           const elementPosition = machinesSection.getBoundingClientRect().top + window.pageYOffset;
-          window.scrollTo({
-            top: elementPosition - navbarHeight,
-            behavior: 'smooth'
-          });
+          window.scrollTo({ top: elementPosition - navbarHeight, behavior: 'smooth' });
         }, 100);
       }
     }
-  }, [location.hash]);
+  }, []);
 
   return (
     <Layout>
-      {/* Page Header */}
-      <section className="section-dark page-header" style={{ textAlign: 'center' }}>
+      {/* Premium Hero Section */}
+      <section className="hero-premium">
+        <div className="hero-texture"></div>
         <div className="container">
-          <span className="section-label" style={{ background: 'rgba(224, 122, 24, 0.2)', marginBottom: '16px' }}>Our Services</span>
-          <h1 className="section-title">Equipment <span>Rental Services</span></h1>
-          <p style={{ margin: '20px auto 0', maxWidth: '700px', color: 'rgba(255, 255, 255, 0.7)' }}>
-            Choose from our range of well-maintained construction equipment available for rental.
-            Flexible terms to suit your project needs in Chennai.
-          </p>
+          <div className="hero-split">
+            <div className="hero-content">
+              <span className="hero-badge">Rental Services</span>
+              <h1 className="section-title">Equipment <span>Rental</span> Solutions</h1>
+              <p>
+                Access a fleet of well-maintained construction machinery on flexible terms. 
+                Whether it's earthmoving or demolition, we provide the power you need for every project.
+              </p>
+              <div className="hero-actions">
+                <a href="#machines-grid" className="btn btn-primary">View Services</a>
+                <Link to="/contact" className="btn btn-outline" style={{ borderColor: 'rgba(255,255,255,0.3)', color: 'white' }}>Inquire Now</Link>
+              </div>
+            </div>
+            <div className="hero-visual">
+              <img src={servicesHeroImg} alt="Rental Machinery" className="hero-main-img" />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="section" id="machines-grid">
+      {/* Stats Section */}
+      <section className="stats-premium">
         <div className="container">
-          <div className="section-header">
-            <span className="section-label">Choose Category</span>
-            <h2 className="section-title">Select <span>Equipment Type</span></h2>
+          <div className="stats-grid">
+            <div className="stat-item">
+              <h3>250+</h3>
+              <p>Projects Completed</p>
+            </div>
+            <div className="stat-item">
+              <h3>24/7</h3>
+              <p>On-site Support</p>
+            </div>
+            <div className="stat-item">
+              <h3>100%</h3>
+              <p>Reliability</p>
+            </div>
+            <div className="stat-item">
+              <h3>Chennai</h3>
+              <p>Service Hub</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="category-section-premium" id="machines-grid">
+        <div className="divider-wave">
+          <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ height: '60px', width: '100%', fill: '#1C1C1C' }}>
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+          </svg>
+        </div>
+        
+        <div className="container">
+          <div className="section-header" style={{ textAlign: 'center', marginBottom: '60px' }}>
+            <span className="section-label">Our Expertise</span>
+            <h2 className="section-title">Select <span>Service Type</span></h2>
+            <p style={{ maxWidth: '600px', margin: '20px auto 0', color: 'var(--muted-foreground)' }}>
+              Explore our specialized rental services tailored to meet the demands of Chennai's construction landscape.
+            </p>
           </div>
 
           <div className="grid-3">
@@ -96,6 +142,8 @@ export default function Services() {
                 path={category.path}
                 buttonText="View Services"
                 imageKey={category.imageKey}
+                customImage={category.customImage}
+                count={counts[category.category]}
               />
             ))}
           </div>
