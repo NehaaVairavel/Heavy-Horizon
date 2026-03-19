@@ -21,7 +21,10 @@ export default function Contact() {
       newErrors.name = 'Name is required';
     }
 
-    // Message is optional
+    // Message is now mandatory
+    if (!formData.message.trim()) {
+      newErrors.message = 'Requirement message is required';
+    }
 
     if (!formData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
@@ -52,8 +55,7 @@ export default function Contact() {
         mobile: formData.mobile.trim(),
         email: formData.email.trim() || undefined,
         category: 'Contact Us',
-        source_page: window.location.pathname,
-        machine_brand: 'General Enquiry',
+        source_page: window.location.href,
         machine_category: 'N/A',
         machine_code: 'N/A'
       };
@@ -70,7 +72,20 @@ export default function Contact() {
       const name = formData.name.trim();
       const mobile = formData.mobile.trim();
 
-      const whatsappMessage = `Hello Heavy Horizon,\n\nI would like to enquire about your construction equipment.\n\nPlease provide more details.`;
+      const whatsappMessage = `Hello Heavy Horizon,
+
+Name: ${name}
+Mobile: ${mobile}
+
+I am interested in the following machine:
+
+Machine: General Enquiry
+Category: N/A
+Machine Code: N/A
+
+Requirement: ${formData.message.trim()}
+
+Please contact me with further details.`;
 
       const text = encodeURIComponent(whatsappMessage);
 

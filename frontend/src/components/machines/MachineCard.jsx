@@ -36,6 +36,20 @@ export function MachineCard({ machine, onEnquiry }) {
           <span className="category-badge">{machine.category}</span>
         )}
 
+        {machine.status === 'Sold' && (
+          <div className="sold-overlay">
+            <div className="sold-tag">
+              <div className="sold-icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <span className="sold-text">SOLD</span>
+              <span className="sold-subtext">Equipment No Longer Available</span>
+            </div>
+          </div>
+        )}
+
         {hasImages ? (
           <>
             <img
@@ -186,14 +200,16 @@ export function MachineCard({ machine, onEnquiry }) {
             VIEW DETAILS
           </button>
           <button
-            className="btn btn-primary btn-block"
+            className={`btn btn-primary btn-block ${machine.status === 'Sold' ? 'btn-sold-out' : ''}`}
             onClick={(e) => {
+              if (machine.status === 'Sold') return;
               e.stopPropagation();
               window.scrollTo({ top: 0, behavior: 'smooth' });
               onEnquiry(machine);
             }}
+            disabled={machine.status === 'Sold'}
           >
-            SEND ENQUIRY
+            {machine.status === 'Sold' ? 'SOLD OUT' : 'SEND ENQUIRY'}
           </button>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { MachineCard } from '@/components/machines/MachineCard';
 import { EnquiryModal } from '@/components/machines/EnquiryModal';
 import { getMachines } from '@/lib/api';
+import { useSocket } from '@/context/SocketContext';
 
 const categoryInfo = {
   'backhoe-loaders': {
@@ -28,6 +29,7 @@ export default function SalesCategory() {
   const { category } = useParams();
   const [machines, setMachines] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const socket = useSocket();
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -53,6 +55,16 @@ export default function SalesCategory() {
 
     fetchMachines();
 
+    // Socket.io Real-time Updates
+    if (socket) {
+      const handleUpdate = (data) => {
+        console.log('Product update received in SalesCategory:', data);
+        fetchMachines();
+      };
+      socket.on('productUpdated', handleUpdate);
+      return () => socket.off('productUpdated', handleUpdate);
+    }
+
     // Direct landing logic
     if (window.location.hash === '#machines-grid') {
       const machinesSection = document.getElementById('machines-grid');
@@ -67,7 +79,7 @@ export default function SalesCategory() {
         }, 100);
       }
     }
-  }, [category, info]);
+  }, [category, info, socket]);
 
   const handleEnquiry = (machine) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

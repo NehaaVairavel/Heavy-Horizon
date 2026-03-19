@@ -8,6 +8,7 @@ import bcrypt, jwt, os, re
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from bson import ObjectId
+from flask_socketio import SocketIO, emit
 
 load_dotenv()
 
@@ -18,6 +19,7 @@ print(f"DEBUG: Static folder is {static_folder}")
 
 app = Flask(__name__, static_folder=static_folder, static_url_path='/')
 CORS(app) # Simplified CORS for same-origin deployment
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', logger=True, engineio_logger=True)
 
 
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
@@ -180,7 +182,12 @@ def add_machine():
             data["machineCode"] = f"{prefix}-{next_num:04d}"
         
         machines.insert_one(data)
-        return jsonify({"message": "Machine added", "machineCode": data.get("machineCode")})
+        
+        # Emit real-time update
+        print(f"DEBUG: Product added, emitting productUpdated for {data.get('machineCode')}")
+        socketio.emit('productUpdated', {'action': 'add', 'machineCode': data.get('machineCode'), 'machine': {**data, "_id": str(data["_id"])}})
+        
+        return jsonify({"message": "Machine added", "machineCode": data.get('machineCode')})
     except Exception as e:
         print("Error adding machine:", e)
         return jsonify({"error": str(e)}), 500
@@ -213,6 +220,11 @@ def update_delete_machine(id):
         
         updated = machines.find_one({"_id": ObjectId(id)})
         updated["_id"] = str(updated["_id"])
+        
+        # Emit real-time update
+        print(f"DEBUG: Product updated, emitting productUpdated for {id}")
+        socketio.emit('productUpdated', {'action': 'update', 'id': str(id), 'machine': updated})
+        
         return jsonify(updated)
     
     # DELETE logic with Cloudinary cleanup
@@ -221,6 +233,11 @@ def update_delete_machine(id):
         delete_cloudinary_images(machine.get("images", []))
     
     machines.delete_one({"_id": ObjectId(id)})
+    
+    # Emit real-time update
+    print(f"DEBUG: Product deleted, emitting productUpdated for {id}")
+    socketio.emit('productUpdated', {'action': 'delete', 'id': str(id)})
+    
     return jsonify({"message": "Machine deleted"})
 
 # ---------------- PARTS ----------------
@@ -319,17 +336,16 @@ def enquiry():
     phone = "916379432565"
     
     # Extract Machine details from payload, fallback to empty/NA if general enquiry
-    req_brand = data.get("machine_brand", "N/A")
     req_category = data.get("machine_category", "N/A")
     req_code = data.get("machine_code", "N/A")
     machine_title = data.get("machine", "N/A")
 
     if machine_title != "N/A" and machine_title != "":
-        # Specific Machine Enquiry
-        msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\I am interested in the following machine:\n\nBrand: {req_brand}\nCategory: {req_category}\nMachine Code: {req_code}\n\nPlease contact me with further details."
+        # Specific Machine Enquiry - Exact Requested Format
+        msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\nI am interested in the following machine:\n\nMachine: {machine_title}\nCategory: {req_category}\nMachine Code: {req_code}\n\nRequirement: {data.get('message', 'N/A')}\n\nPlease contact me with further details."
     else:
         # General Enquiry fallback
-        msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\nI would like to enquire about your construction equipment.\n\nPlease contact me with further details."
+        msg = f"Hello Heavy Horizon,\n\nName: {name}\nMobile: {mobile}\n\nI would like to enquire about your construction equipment.\n\nRequirement: {data.get('message', 'N/A')}\n\nPlease contact me with further details."
         
     import urllib.parse
     whatsapp_url = f"https://wa.me/{phone}?text={urllib.parse.quote(msg)}"
@@ -406,6 +422,6 @@ def handle_routing_errors(e):
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
-    # Disable reloader on Windows to prevent WinError 10038
-    # Using port 5000 as requested
-    app.run(debug=True, port=int(os.getenv("PORT", 5000)), use_reloader=False)
+    # Use socketio.run instead of app.run
+    # allow_unsafe_werkzeug=True is required for recent flask-socketio on dev server
+    socketio.run(app, debug=True, port=int(os.getenv("PORT", 5000)), use_reloader=False, allow_unsafe_werkzeug=True)

@@ -7,3 +7,5 @@ PyJWT
 cloudinary
 dnspython
 gunicorn
+flask-socketio
+eventlet

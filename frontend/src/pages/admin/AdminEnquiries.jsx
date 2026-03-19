@@ -78,6 +78,7 @@ export default function AdminEnquiries() {
                 <th>Item</th>
                 <th>Category</th>
                 <th>Message</th>
+                <th>Source</th>
                 <th>Location</th>
                 <th>Mobile</th>
                 <th>Date</th>
@@ -99,6 +100,11 @@ export default function AdminEnquiries() {
                   <td data-label="Message">
                     <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={enquiry.message}>
                       {enquiry.message || '-'}
+                    </div>
+                  </td>
+                  <td data-label="Source">
+                    <div style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={enquiry.source_page}>
+                      {enquiry.source_page ? new URL(enquiry.source_page).pathname : '-'}
                     </div>
                   </td>
                   <td data-label="Location">{enquiry.location || '-'}</td>

@@ -4,15 +4,37 @@ import { Layout } from '@/components/layout/Layout';
 import { EnquiryModal } from '@/components/machines/EnquiryModal';
 import { getMachine } from '@/lib/api';
 import { normalizeImages } from '@/lib/images';
+import { useSocket } from '@/context/SocketContext';
 
 export default function MachineDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const socket = useSocket();
     const [machine, setMachine] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isHighlighting, setIsHighlighting] = useState(false);
+
+    // Socket.io Real-time Updates
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleUpdate = (data) => {
+            console.log('Product update received:', data);
+            if (data.action === 'update' && data.id === id) {
+                setMachine(data.machine);
+                setIsHighlighting(true);
+                setTimeout(() => setIsHighlighting(false), 2000);
+            } else if (data.action === 'delete' && data.id === id) {
+                navigate(backPath);
+            }
+        };
+
+        socket.on('productUpdated', handleUpdate);
+        return () => socket.off('productUpdated', handleUpdate);
+    }, [socket, id, navigate]);
 
     // Determine type from URL path
     const isServices = location.pathname.startsWith('/services');
@@ -137,13 +159,13 @@ export default function MachineDetail() {
             <section className="machine-detail-content">
                 <div className="container">
                     <div className="detail-layout">
-                        <div className="detail-main">
+                        <div className={`detail-main ${isHighlighting ? 'highlight-update' : ''}`}>
                             {/* Header Section directly below image */}
                             <div className="detail-header" style={{ marginBottom: 40 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                                     <div style={{ display: 'flex', gap: 10 }}>
                                         <span className="badge badge-sales" style={{ background: '#000', color: '#fff', fontSize: '0.65rem' }}>{machine.category?.toUpperCase()}</span>
-                                        <span className="badge badge-available">{machine.status || 'Available'}</span>
+                                        <span className={`badge badge-${(machine.status || 'Available').toLowerCase()}`}>{machine.status || 'Available'}</span>
                                         <span className="badge badge-rental" style={{ background: '#fef3c7', color: '#d97706' }}>FOR {purpose.toUpperCase()}</span>
                                     </div>
                                     {machine.machineCode && (
@@ -227,13 +249,15 @@ export default function MachineDetail() {
                                 <p>Get in touch with us for more details, pricing, or to schedule an inspection.</p>
 
                                 <button
-                                    className="btn btn-primary btn-block"
+                                    className={`btn btn-primary btn-block ${machine.status === 'Sold' ? 'btn-sold-out' : ''}`}
                                     onClick={() => {
+                                        if (machine.status === 'Sold') return;
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                         setIsModalOpen(true);
                                     }}
+                                    disabled={machine.status === 'Sold'}
                                 >
-                                    SEND ENQUIRY
+                                    {machine.status === 'Sold' ? 'SOLD OUT' : 'SEND ENQUIRY'}
                                 </button>
 
                                 <button

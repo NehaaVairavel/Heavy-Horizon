@@ -69,9 +69,9 @@ export function EnquiryModal({ isOpen, onClose, machine, enquiryType }) {
         mobile: formData.mobile.trim(),
         email: formData.email.trim() || undefined,
         machine: machine ? machine.title : 'General Enquiry',
-        machine_brand: machine?.brand || 'N/A',
         machine_category: machine?.category || 'N/A',
-        machine_code: machine?.machineCode || 'N/A'
+        machine_code: machine?.machineCode || 'N/A',
+        source_page: window.location.href
       };
 
       const response = await submitEnquiry(enquiryData);
